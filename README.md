@@ -1,5 +1,4 @@
-# Starmourn Client
-## MUSHclient add-ons to improve accessibility for Starmourn
+# Oracle:
+## MUSHclient add-ons to improve accessibility for Achaea
 
-This is a set of plugins and scripts to increase the playability of [Starmourn](https://starmourn.com), the popular science fiction game from [Iron Realms Entertainment](https://ironrealms.com),  for the visually impaired.
-
+Oracle is a set of [MUSHclient](https://www.mushclient.com/) plugins and scripts to increase the accessibility and playability of [Achaea: Dreams of Divine Lands.](https://achaea.com/) The aim of this project is to recreate some of the more popular Mudlet scripts that exist so they are usable by blind players.
