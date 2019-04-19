@@ -1,23 +1,45 @@
 require "json"
-sdir = ''
+
 local seq = require 'pl.seq'
 local stringx = require "pl.stringx"
 local tablex = require "pl.tablex"
 
 stringx.import()
 
+-- Define some variables --
+sdir = 'GetInfo(67).."/achaea/sounds/"'
+
 -- Define gmcp tables --
 gmcp = {
 	Room = {
-		Info = {},
-		Mobs = {},
-		Objects = {},
+		AddPlayer = {},
+			Info = {},
 		Players = {},
 	},
 	Char = {
-		Afflictions = {},
-		Defences = {},
+		Afflictions = {
+			Add = {},
+			List = {},
+		},
+		Defences = {
+			Add = {},
+			List = {},
+		},
+		Items = {
+			Add = {
+			item = {},
+			},
+			List = {},
+			Remove = {},
+Update = {},
+			},
+
 		Name = {},
+		Skills = {
+			Groups = {},
+			List = {},
+			Info = {},
+		},
 		Status = {},
 		Vitals = {},
 	}
@@ -53,105 +75,66 @@ function handle_char_status(data)
 end -- function
 
 function handle_char_afflictions_list(data)
-	update = {}
-	for k, v in pairs(data) do
-		update[data[k].name] = v
-	end -- for
-	gmcp.Char.Afflictions = update
+	tablex.update(gmcp.Char.Afflictions.List, data)
 end -- function
 
 function handle_char_afflictions_add(data)
-	if string.find(data.name, "fracture") or string.find(data.name, "pressure") or string.find(data.name, "temper") then
-		return
-	end -- if
-	gmcp.Char.Afflictions[data.name] = data
-	-- Sound(sdir.."/afflictions/"..data.name..".ogg")
+	tablex.update(gmcp.Char.Afflictions.Add, data)
+	Sound(sdir.."/afflictions/"..data.name..".ogg")
 end -- function
 
 function handle_char_afflictions_remove(data)
-	for k, v in ipairs(data) do
-		gmcp.Char.Afflictions[v] = nil
- end -- for
+	gmcp.Char.Afflictions.Remove = data
 end -- function
 
 function handle_char_defences_list(data)
-	update = {}
-	for k, v in pairs(data) do
-		update[data[k].name] = v
-	end -- for
-	gmcp.Char.Defences = update
+	tablex.update(gmcp.Char.Defences.List, data)
 end -- function
 
 function handle_char_defences_add(data)
-		gmcp.Char.Defences[data.name] = data
+		tablex.update(gmcp.Char.Defences.Add, data)
 end -- function
 
 function handle_char_defences_remove(data)
-	for k, v in ipairs(data) do
-		gmcp.Char.Defences[v] = nil
- end -- for
+	gmcp.Char.Defences.Remove = data
 end -- function
 
 
 function handle_room_players(data)
-	local update = {}
-	for index, player in pairs(data) do
-		update[player.name] = player
-	end -- for
-	gmcp.Room.Players = update
+	tablex.update(gmcp.Room.Players, data)
 end --function
 
 function handle_room_addplayer (data)
-	gmcp.Room.Players[data.name] = data
+	tablex.update(gmcp.Room.AddPlayer, data)
 end -- function
 
 function handle_room_removeplayer(data)
-  gmcp.Room.Players[data] = nil
+	gmcp.Room.RemovePlayer = data
 end -- function
 
 function handle_char_items_add (data)
-  update = {}
-  update[data.item.id] = data.item
-	if data.location == 'room' then
-		if IsMob(data.item) then
-			tablex.update(gmcp.Room.Mobs, update)
-    else
-			tablex.update(gmcp.Room.Objects, update)
-    end -- if
-      end -- if
+			tablex.update(gmcp.Char.Items.Add, data)
 end -- function
 
 function handle_char_items_remove (data)
-	if data.location == 'room' then
-		if IsMob(data.item) then
-			gmcp.Room.Mobs[data.item.id] = nil
-    else
-			gmcp.Room.Objects[data.item.id] = nil
-    end -- if
-  end -- if
+			gmcp.Char.Items.Add[data.item.id] = nil
 end -- function
 
 function handle_char_items_list(data)
-  Mobs = {}
-  Objects = {}
-  for index, item in ipairs(data.items) do
-    if IsMob(item) then
-			Mobs[item.id] = item
-    else
-			Objects[item.id] = item
-    end -- if
-  end -- for
-  update = {
-		Mobs = Mobs,
-		Objects = Objects,
-  }
-	gmcp.Room.Objects = {}
-	gmcp.Room.Mobs = {}
-	tablex.update(gmcp.Room, update)
+	tablex.update(gmcp.Char.Items.List, data)
 end -- function
 
 function IsMob(obj)
 	return obj.attrib and obj.attrib:startswith('m')
+end -- function
+
+function handle_comm_channel_text(data)
+	talker = data.channel
+	if string.find(talker, "tell") then
+	talker = "tells"
+	end -- if
+
+	AddToHistory(talker, StripANSI(data.text))
 end -- function
 
 function ItemNames(tbl)
@@ -164,4 +147,17 @@ function ItemNames(tbl)
   end -- for
   return names
 end -- function
+
+function AddToHistory(source, message)
+ExecuteNoStack("history_add " .. source .. "=" .. message)
+end
+
+
+-- Helper functions --
+function ExecuteNoStack(cmd)
+  local s = GetOption("enable_command_stack")
+  SetOption("enable_command_stack", 0)
+  Execute(cmd)
+  SetOption("enable_command_stack", s)
+end
 
