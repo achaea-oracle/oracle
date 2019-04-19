@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on Sunday, February 24, 2019, 4:25 PM -->
+<!-- Saved on Wednesday, March 20, 2019, 10:53 PM -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -8,7 +8,7 @@
 <world
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-02-24 16:25:11"
+   date_saved="2019-03-20 22:53:27"
 
    auto_say_override_prefix="-"
    auto_say_string="say "
@@ -115,7 +115,7 @@
 <triggers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-02-24 16:25:11"
+   date_saved="2019-03-20 22:53:27"
   >
   <trigger
    enabled="y"
@@ -142,7 +142,7 @@ Info("%1h %2m %3e %4w %5")</send>
 <aliases
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-02-24 16:25:11"
+   date_saved="2019-03-20 22:53:27"
   >
   <alias
    script="handle_GMCP"
@@ -162,7 +162,7 @@ Info("%1h %2m %3e %4w %5")</send>
 <timers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-02-24 16:25:11"
+   date_saved="2019-03-20 22:53:27"
   >
 </timers>
 
@@ -171,7 +171,7 @@ Info("%1h %2m %3e %4w %5")</send>
 <macros
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-02-24 16:25:11"
+   date_saved="2019-03-20 22:53:27"
   >
 
   <macro name="up" type="send_now" >
@@ -265,7 +265,7 @@ Info("%1h %2m %3e %4w %5")</send>
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-02-24 16:25:11"
+   date_saved="2019-03-20 22:53:27"
   >
 </variables>
 
@@ -274,7 +274,7 @@ Info("%1h %2m %3e %4w %5")</send>
 <colours
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-02-24 16:25:11"
+   date_saved="2019-03-20 22:53:27"
   >
 
 <ansi>
@@ -331,7 +331,7 @@ Info("%1h %2m %3e %4w %5")</send>
 <keypad
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-02-24 16:25:11"
+   date_saved="2019-03-20 22:53:27"
   >
 
   <key name="0" >
@@ -445,7 +445,7 @@ Info("%1h %2m %3e %4w %5")</send>
 <printing
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-02-24 16:25:11"
+   date_saved="2019-03-20 22:53:27"
   >
 
 <ansi>
@@ -476,4 +476,5 @@ Info("%1h %2m %3e %4w %5")</send>
 <include name="GMCP_to_world.xml" plugin="y" />
 <include name="LuaAudio.xml" plugin="y" />
 <include name="MushReader.xml" plugin="y" />
+<include name="C:\Users\andrew\Downloads\GDMC512.xml" plugin="y" />
 </muclient>
