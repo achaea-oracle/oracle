@@ -1,5 +1,6 @@
 require "json"
 
+local path = require 'pl.path'
 local seq = require 'pl.seq'
 local stringx = require "pl.stringx"
 local tablex = require "pl.tablex"
