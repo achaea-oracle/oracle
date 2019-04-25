@@ -7,7 +7,8 @@ local tablex = require "pl.tablex"
 stringx.import()
 
 -- Define some variables --
-sdir = 'GetInfo(67).."/achaea/sounds/"'
+sdir = path.abspath("worlds/achaea/sounds/")
+savedir = path.abspath("worlds/achaea/")
 
 -- Define gmcp tables --
 gmcp = {
