@@ -52,7 +52,7 @@ function handle_GMCP(name, line, wc)
   local args = wc[2]
   local handler_func_name = "handle_" .. command:lower():gsub("%.", "_")
   local handler_func = _G[handler_func_name]
-	GMCPTrackClass:Process(command,args)
+  GMCPTrackProcess(command,args)
   if handler_func == nil then
   --  Note("No handler " .. handler_func_name .. " for " .. command .. " " .. args)
   else
@@ -156,123 +156,64 @@ function AddToHistory(source, message)
 ExecuteNoStack("history_add " .. source .. "=" .. message)
 end
 
-GMCPTrackClass = {
-	MsgProcesses = {},
-	affs = {},
-	defs = {},
-	vitals = {},
-	status = {},
-}
 
-function GMCPTrackClass:new()
-  local TrackTbl = TrackTbl or {}
-	setmetatable(TrackTbl, self)
-	self.__index = self
-	return TrackTbl
+--This section tracks state based on GMCP messages
+
+GMCPTrack = GMCPTrack or {}
+
+function GMCPTrackProcess(source, message)
+  --Note(source .. " = " .. message)
+  if not GMCPTrack[source] or type(GMCPTrack[source]) ~= "function" then
+    return
+  else
+    GMCPTrack[source](message)
+  end -- if
 end -- function
 
-function GMCPTrackClass:Process(source, message)
-  if not self.MsgProcesses[source] or type(self.MsgProcesses[source]) ~= "function" then
-	  --Note(source .. " is not one of the modules enabled for state tracking via GMCP")
-	  return
-	else
-	  self.MsgProcesses[source](message)
-	end -- if
-end -- function
-
-function GMCPTrackClass:AffsList(message)
-  self.affs = {}
+GMCPTrack["Char.Afflictions.List"] = function(message)
+  my_affs = {}
 	local affs_list = json.decode(message)
 	for i,v in ipairs(affs_list) do
-	  self.affs[v.name] = true
+	  my_affs[v.name] = true
 	end -- for
 end -- function
 
-GMCPTrackClass.MsgProcesses["Char.Afflictions.List"] = GMCPTrackClass:AffsList
-
-function GMCPTrackClass:AffsAdd(message)
-  self.affs = self.affs or {}
-	local new_affs = json.decode(message)
-	for i,v in ipairs(new_affs) do
-	  self.affs[v.name] = true
-	end -- for
+GMCPTrack["Char.Afflictions.Add"] = function(message)
+  my_affs = my_affs or {}
+  local new_aff = json.decode(message)
+  my_affs[new_aff.name] = true
 end -- function
 
-GMCPTrackClass.MsgProcesses["Char.Afflictions.Add"] = GMCPTrackClass:AffsAdd
-
-function GMCPTrackClass:AffsRemove(message)
-  self.affs = self.affs or {}
-	local removed_affs = json.decode(message)
-	for i,v in ipairs(removed_affs) do
-	  self.affs[v.name] = false
-	end -- for
+GMCPTrack["Char.Afflictions.Remove"] = function(message)
+  my_affs = my_affs or {}
+  aff_remove_string=message
+  removed_affs = json.decode(message)
+  for i,v in ipairs(removed_affs) do
+    my_affs[v] = false
+  end -- for
 end -- function
 
-GMCPTrackClass.MsgProcesses["Char.Afflictions.Remove"] = GMCPTrackClass:AffsRemove
-
-function GMCPTrackClass:DefsList(message)
-	self.defs = {}
+GMCPTrack["Char.Defences.List"] = function(message)
+	my_defs = {}
 	local defs_list = json.decode(message)
 	for i,v in ipairs(defs_list) do
-		self.defs[v.name] = true
+		my_defs[v.name] = true
 	end -- for
 end -- function
 
-GMCPTrackClass.MsgProcesses["Char.Defences.List"] = GMCPTrackClass:DefsList
-
-function GMCPTrackClass:DefsAdd(message)
-  self.defs = self.defs or {}
-	local new_defs = json.decode(message)
-	for i,v in ipairs(new_defs) do
-	  self.defs[v.name] = true
-	end -- for
+GMCPTrack["Char.Defences.Add"] = function(message)
+  my_defs = my_defs or {}
+  local new_def = json.decode(message)
+  my_defs[new_def.name] = true
 end -- function
 
-GMCPTrackClass.MsgProcesses["Char.Defences.Add"] = GMCPTrackClass:DefsAdd
-
-function GMCPTrackClass:AffsRemove(message)
-  self.defs = self.defs or {}
+GMCPTrack["Char.Defences.Remove"] = function(message)
+  my_defs = my_defs or {}
 	local removed_defs = json.decode(message)
 	for i,v in ipairs(removed_defs) do
-	  self.defs[v.name] = false
+	  my_defs[v] = false
 	end -- for
 end -- function
-
-GMCPTrackClass.MsgProcesses["Char.Defences.Remove"] = GMCPTrackClass:DefsRemove
-
-function GMCPTrackClass:GetAffs()
-	return self.affs
-end -- function
-
-function GMCPTrackClass:GetDefs()
-	return self.defs
-end -- function
-
-function GMCPTrackClass:CheckAff(affname)
-  if not self.affs then
-	  Note("Unable to check for affliction: no affs table found")
-		return
-	end -- if
-	if not self.affs[affname] then
-	  return false
-	else
-	  return true
-	end --if
-end -- function
-
-function GMCPTrackClass:CheckDef(defname)
-  if not self.defs then
-	  Note("Unable to check for affliction: no affs table found")
-		return
-	end -- if
-	if not self.defs[defname] then
-	  return false
-	else
-	  return true
-	end --if
-end -- function
-
-
 	
 -- Helper functions --
 function ExecuteNoStack(cmd)
