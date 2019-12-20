@@ -495,7 +495,7 @@ function history_peek(name, line, wc)
 	if current_category == 0 then
 		say("No category selected.")
 		return
-	elseif #messages[categories[current_category]] -- 0 then
+	elseif #messages[categories[current_category]] then -- 0 then
 		say("No message in this category")
 		return
 	end
