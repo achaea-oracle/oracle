@@ -144,6 +144,17 @@ keep_evaluating="y"
   >
   </alias>
   <alias
+   script="history_peek"
+   match="^history_peek$"
+   enabled="y"
+   omit_from_command_history="y"
+   omit_from_log="y"
+   omit_from_output="y"
+   regexp="y"
+   sequence="100"
+  >
+  </alias>
+  <alias
    script="history_msgcopy"
    match="history_msgcopy"
    enabled="y"
@@ -217,6 +228,7 @@ Accelerator("alt + up", "history_msgprev 1")
 Accelerator("alt + pagedown", "history_msgnext 10")
 Accelerator("alt + pageup", "history_msgprev 10")
 Accelerator("alt + end", "history_msgnext 2000")
+Accelerator("shift + end", "history_peek")
 Accelerator("alt + home", "history_msgprev 2000")
 Accelerator("shift+alt + right", "history_move right")
 Accelerator("shift+alt + left", "history_move left")
@@ -472,6 +484,23 @@ function history_msgprev(name, line, wc)
   indices[categories[current_category]] = indices[categories[current_category]] - skip
  end
  sayMsg(str, messages[categories[current_category]][indices[categories[current_category]]])
+end
+
+function history_peek(name, line, wc)
+	local str = ""
+	if #categories == 0 then
+		say("no categories")
+		return
+	end
+	if current_category == 0 then
+		say("No category selected.")
+		return
+	elseif #messages[categories[current_category]] then -- 0 then
+		say("No message in this category")
+		return
+	end
+  str = "Last: "
+	sayMsg(str, messages[categories[current_category]][#messages[categories[current_category]]])
 end
 
 function history_msgcopy(name, line, wc)

@@ -52,6 +52,7 @@ function handle_GMCP(name, line, wc)
   local args = wc[2]
   local handler_func_name = "handle_" .. command:lower():gsub("%.", "_")
   local handler_func = _G[handler_func_name]
+  GMCPTrackProcess(command,args)
   if handler_func == nil then
   --  Note("No handler " .. handler_func_name .. " for " .. command .. " " .. args)
   else
@@ -77,6 +78,7 @@ function handle_char_status(data)
 end -- function
 
 function handle_char_afflictions_list(data)
+  
 	tablex.update(gmcp.Char.Afflictions.List, data)
 end -- function
 
@@ -155,6 +157,64 @@ ExecuteNoStack("history_add " .. source .. "=" .. message)
 end
 
 
+--This section tracks state based on GMCP messages
+
+GMCPTrack = GMCPTrack or {}
+
+function GMCPTrackProcess(source, message)
+  --Note(source .. " = " .. message)
+  if not GMCPTrack[source] or type(GMCPTrack[source]) ~= "function" then
+    return
+  else
+    GMCPTrack[source](message)
+  end -- if
+end -- function
+
+GMCPTrack["Char.Afflictions.List"] = function(message)
+  my_affs = {}
+	local affs_list = json.decode(message)
+	for i,v in ipairs(affs_list) do
+	  my_affs[v.name] = true
+	end -- for
+end -- function
+
+GMCPTrack["Char.Afflictions.Add"] = function(message)
+  my_affs = my_affs or {}
+  local new_aff = json.decode(message)
+  my_affs[new_aff.name] = true
+end -- function
+
+GMCPTrack["Char.Afflictions.Remove"] = function(message)
+  my_affs = my_affs or {}
+  aff_remove_string=message
+  removed_affs = json.decode(message)
+  for i,v in ipairs(removed_affs) do
+    my_affs[v] = false
+  end -- for
+end -- function
+
+GMCPTrack["Char.Defences.List"] = function(message)
+	my_defs = {}
+	local defs_list = json.decode(message)
+	for i,v in ipairs(defs_list) do
+		my_defs[v.name] = true
+	end -- for
+end -- function
+
+GMCPTrack["Char.Defences.Add"] = function(message)
+  my_defs = my_defs or {}
+  local new_def = json.decode(message)
+  my_defs[new_def.name] = true
+end -- function
+
+GMCPTrack["Char.Defences.Remove"] = function(message)
+  my_defs = my_defs or {}
+	local removed_defs = json.decode(message)
+	for i,v in ipairs(removed_defs) do
+	  my_defs[v] = false
+	end -- for
+end -- function
+	
 -- Helper functions --
 function ExecuteNoStack(cmd)
   local s = GetOption("enable_command_stack")
