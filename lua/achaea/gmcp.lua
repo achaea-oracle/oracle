@@ -1,15 +1,5 @@
 require "json"
-
-local path = require 'pl.path'
-local seq = require 'pl.seq'
-local stringx = require "pl.stringx"
 local tablex = require "pl.tablex"
-
-stringx.import()
-
--- Define some variables --
-sdir = path.abspath("worlds/achaea/sounds/")
-savedir = path.abspath("worlds/achaea/")
 
 -- Define gmcp tables --
 gmcp = {
@@ -78,8 +68,7 @@ function handle_char_status(data)
 end -- function
 
 function handle_char_afflictions_list(data)
-  
-	tablex.update(gmcp.Char.Afflictions.List, data)
+  	tablex.update(gmcp.Char.Afflictions.List, data)
 end -- function
 
 function handle_char_afflictions_add(data)
@@ -214,12 +203,4 @@ GMCPTrack["Char.Defences.Remove"] = function(message)
 	  my_defs[v] = false
 	end -- for
 end -- function
-	
--- Helper functions --
-function ExecuteNoStack(cmd)
-  local s = GetOption("enable_command_stack")
-  SetOption("enable_command_stack", 0)
-  Execute(cmd)
-  SetOption("enable_command_stack", s)
-end
 

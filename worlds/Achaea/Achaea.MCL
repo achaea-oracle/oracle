@@ -20,7 +20,7 @@
    output_font_name="FixedSys"
    script_editor="notepad"
    script_editor_argument="%file"
-   script_filename="worlds\Achaea\scripts.lua"
+   script_filename="worlds\Achaea\oracle.lua"
    script_language="Lua"
    script_prefix="/"
    site="achaea.com"
