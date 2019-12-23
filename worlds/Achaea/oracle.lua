@@ -22,3 +22,11 @@ function ExecuteNoStack(cmd)
   SetOption("enable_command_stack", s)
 end
 
+-- Define oracle --
+oracle = oracle or {}
+oracle.affs = oracle.affs or {}
+oracle.defs = oracle.defs or {}
+
+oracle.echo = function(what)
+	Note("[Oracle]: "..what)
+end -- function

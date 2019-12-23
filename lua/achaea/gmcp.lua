@@ -160,47 +160,47 @@ function GMCPTrackProcess(source, message)
 end -- function
 
 GMCPTrack["Char.Afflictions.List"] = function(message)
-  my_affs = {}
-	local affs_list = json.decode(message)
-	for i,v in ipairs(affs_list) do
-	  my_affs[v.name] = true
+  oracle.affs = {}
+	local affsList = json.decode(message)
+	for i,v in ipairs(affsList) do
+	  oracle.affs[v.name] = true
 	end -- for
 end -- function
 
 GMCPTrack["Char.Afflictions.Add"] = function(message)
-  my_affs = my_affs or {}
-  local new_aff = json.decode(message)
-  my_affs[new_aff.name] = true
+  oracle.affs = oracle.affs or {}
+  local newAff = json.decode(message)
+  oracle.affs[newAff.name] = true
 end -- function
 
 GMCPTrack["Char.Afflictions.Remove"] = function(message)
-  my_affs = my_affs or {}
-  aff_remove_string=message
-  removed_affs = json.decode(message)
-  for i,v in ipairs(removed_affs) do
-    my_affs[v] = false
+  oracle.affs = oracle.affs or {}
+  affRemoveString=message
+  removedAffs = json.decode(message)
+  for i,v in ipairs(removedAffs) do
+    oracle.affs[v] = false
   end -- for
 end -- function
 
 GMCPTrack["Char.Defences.List"] = function(message)
-	my_defs = {}
-	local defs_list = json.decode(message)
-	for i,v in ipairs(defs_list) do
-		my_defs[v.name] = true
+	oracle.defs = {}
+	local defsList = json.decode(message)
+	for i,v in ipairs(defsList) do
+		oracle.defs[v.name] = true
 	end -- for
 end -- function
 
 GMCPTrack["Char.Defences.Add"] = function(message)
-  my_defs = my_defs or {}
-  local new_def = json.decode(message)
-  my_defs[new_def.name] = true
+  oracle.defs = oracle.defs or {}
+  local newDef = json.decode(message)
+  oracle.defs[newDef.name] = true
 end -- function
 
 GMCPTrack["Char.Defences.Remove"] = function(message)
-  my_defs = my_defs or {}
-	local removed_defs = json.decode(message)
-	for i,v in ipairs(removed_defs) do
-	  my_defs[v] = false
+  oracle.defs = oracle.defs or {}
+	local removedDefs = json.decode(message)
+	for i,v in ipairs(removedDefs) do
+	  oracle.defs[v] = false
 	end -- for
 end -- function
 
