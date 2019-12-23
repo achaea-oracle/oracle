@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE muclient>
-<!-- Saved on Wednesday, April 24, 2019, 8:36 PM -->
 <!-- MuClient version 4.94 -->
 <!-- Written by Nick Gammon -->
 <!-- Home Page: http://www.mushclient.com/ -->
@@ -8,7 +7,6 @@
 <world
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-04-24 20:36:05"
 
    auto_say_override_prefix="-"
    auto_say_string="say "
@@ -19,7 +17,6 @@
    mapping_failure="Alas, you cannot go that way."
    name="Achaea"
    new_activity_sound="(No sound)"
-   omit_date_from_save_files="y"
    output_font_name="FixedSys"
    script_editor="notepad"
    script_editor_argument="%file"
@@ -72,6 +69,7 @@
    mud_can_change_link_colour="y"
    mud_can_change_options="y"
    note_text_colour="#040000"
+   omit_date_from_save_files="y"
    output_font_height="9"
    output_font_weight="400"
    paste_delay_per_lines="1"
@@ -116,7 +114,6 @@
 <triggers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-04-24 20:36:05"
   >
   <trigger
    enabled="y"
@@ -235,7 +232,6 @@ end -- if</send>
 <aliases
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-04-24 20:36:05"
   >
   <alias
    name="GoldTrackerDisplay"
@@ -365,7 +361,6 @@ end -- if</send>
 <timers
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-04-24 20:36:05"
   >
 </timers>
 
@@ -374,7 +369,6 @@ end -- if</send>
 <macros
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-04-24 20:36:05"
   >
 
   <macro name="up" type="send_now" >
@@ -468,7 +462,6 @@ end -- if</send>
 <variables
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-04-24 20:36:05"
   >
 </variables>
 
@@ -477,7 +470,6 @@ end -- if</send>
 <colours
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-04-24 20:36:05"
   >
 
 <ansi>
@@ -534,7 +526,6 @@ end -- if</send>
 <keypad
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-04-24 20:36:05"
   >
 
   <key name="0" >
@@ -648,7 +639,6 @@ end -- if</send>
 <printing
    muclient_version="4.94"
    world_file_version="15"
-   date_saved="2019-04-24 20:36:05"
   >
 
 <ansi>
