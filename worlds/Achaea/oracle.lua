@@ -1,4 +1,6 @@
 require "json"
+require "luatable" -- extra table functions
+require "tprint" -- useful in global namespace
 
 local path = require 'pl.path'
 local seq = require 'pl.seq'
