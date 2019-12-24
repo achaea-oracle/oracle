@@ -230,5 +230,3 @@ worlds/plugins/Text_To_Speech.xml
 worlds/plugins/timer.xml
 worlds/plugins/Timestamps.xml
 worlds/plugins/Version_Check.xml
-lua/ak.lua
-lua/mudlethelper.lua
