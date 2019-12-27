@@ -1,5 +1,5 @@
 require "json"
-require "luatable" -- extra table functions
+require "luaTable" -- extra table functions
 require "tprint" -- useful in global namespace
 
 local path = require 'pl.path'
@@ -10,6 +10,7 @@ local tablex = require "pl.tablex"
 stringx.import()
 
 -- Achaea imports --
+require "achaea/communications"
 require "achaea/gmcp"
 
 -- Define some variables --

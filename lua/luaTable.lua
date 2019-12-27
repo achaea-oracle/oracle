@@ -66,8 +66,7 @@ local exfw=assert(io.open(vars, "w"))
 exfc=serialize.save_simple(t)
 assert (exfw:write (tname.." = "..exfc))
 exfw:close()
-end
-end
+end -- function
 
 function table.load(filename)
  local f = loadfile(filename)

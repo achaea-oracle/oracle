@@ -201,6 +201,22 @@ end -- if</send>
   </trigger>
   <trigger
    enabled="y"
+   group="channels"
+   keep_evaluating="y"
+   match="^\((.+)\)\: (\S+).*, &quot;(.+)&quot;$"
+   name="channel_capture"
+   regexp="y"
+   send_to="12"
+   sequence="100"
+  >
+  <send>chanSound("%1")
+
+local channel = "%1"
+if channel == "Court's Education Centre" then channel = "CEC" end
+Execute("history_add "..channel.."=%2: %3")</send>
+  </trigger>
+  <trigger
+   enabled="y"
    group="goldtracker"
    ignore_case="y"
    keep_evaluating="y"
