@@ -122,12 +122,16 @@ function IsMob(obj)
 end -- function
 
 function handle_comm_channel_text(data)
-	talker = data.channel
-	if string.find(talker, "tell") then
-	talker = "tells"
-	end -- if
+	local text = StripANSI(data.text)
+	if text:startswith("(") then return end -- if
 
-	AddToHistory(talker, StripANSI(data.text))
+	local speaker = data.channel
+ 
+	if string.find(speaker, "tell") then
+	speaker = "tells"
+ end -- if
+
+ AddToHistory(speaker, false, StripANSI(data.text))
 end -- function
 
 function ItemNames(tbl)
@@ -141,9 +145,6 @@ function ItemNames(tbl)
   return names
 end -- function
 
-function AddToHistory(source, message)
-ExecuteNoStack("history_add " .. source .. "=" .. message)
-end
 
 
 --This section tracks state based on GMCP messages
