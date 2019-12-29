@@ -73,7 +73,6 @@ end -- function
 
 function handle_char_afflictions_add(data)
 	tablex.update(gmcp.Char.Afflictions.Add, data)
-	Sound(sdir.."/afflictions/"..data.name..".ogg")
 end -- function
 
 function handle_char_afflictions_remove(data)
