@@ -12,9 +12,9 @@ stringx.import()
 -- Achaea imports --
 require "achaea/communications"
 require "achaea/gmcp"
+require "achaea/sound"
 
 -- Define some variables --
-sdir = path.abspath("worlds/achaea/sounds/")
 savedir = path.abspath("worlds/achaea/")
 
 -- Helper functions --
