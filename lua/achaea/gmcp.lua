@@ -164,14 +164,24 @@ GMCPTrack["Char.Afflictions.List"] = function(message)
   oracle.affs = {}
 	local affsList = json.decode(message)
 	for i,v in ipairs(affsList) do
-	  oracle.affs[v.name] = true
+	  local name, level = string.match(v.name, "(%a+) %((%d+)%)")
+		if name and level then
+			oracle.affs[name] = tonumber(level)
+		else
+			oracle.affs[v.name] = true
+		end --if
 	end -- for
 end -- function
 
 GMCPTrack["Char.Afflictions.Add"] = function(message)
   oracle.affs = oracle.affs or {}
   local newAff = json.decode(message)
-  oracle.affs[newAff.name] = true
+	local name, level = string.match(newAff.name, "(%a+) %((%d+)%)")
+	if name and level then
+	  oracle.affs[name] = tonumber(level)
+	else
+    oracle.affs[newAff.name] = true
+	end --if
 end -- function
 
 GMCPTrack["Char.Afflictions.Remove"] = function(message)
@@ -179,7 +189,15 @@ GMCPTrack["Char.Afflictions.Remove"] = function(message)
   affRemoveString=message
   removedAffs = json.decode(message)
   for i,v in ipairs(removedAffs) do
-    oracle.affs[v] = false
+	  local name, level = string.match(v, "(%a+) %((%d+)%)")
+		if name and level then
+		  oracle.affs[name] = tonumber(level) - 1
+			if oracle.affs[name] <= 0 then
+			  oracle.affs[name] = false
+			end -- end
+		else
+      oracle.affs[v] = false
+		end --if
   end -- for
 end -- function
 
