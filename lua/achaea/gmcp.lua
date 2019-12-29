@@ -161,12 +161,21 @@ function GMCPTrackProcess(source, message)
 end -- function
 
 GMCPTrack["Char.Afflictions.List"] = function(message)
-  oracle.affs = {}
+  if oracle.affs and oracle.affs.pressure then
+	  local pressLevel = oracle.affs.pressure
+	end
+	oracle.affs = {}
 	local affsList = json.decode(message)
 	for i,v in ipairs(affsList) do
 	  local name, level = string.match(v.name, "(%a+) %((%d+)%)")
 		if name and level then
 			oracle.affs[name] = tonumber(level)
+		elseif v.name == "pressure" then
+			if pressLevel then
+				oracle.affs[v.name] = pressLevel
+			else
+				oracle.affs[v.name] = 1
+			end
 		else
 			oracle.affs[v.name] = true
 		end --if
