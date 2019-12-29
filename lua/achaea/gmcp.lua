@@ -19,12 +19,21 @@ gmcp = {
 		},
 		Items = {
 			Add = {
+<<<<<<< HEAD
 			item = {},
 			},
 			List = {},
 			Remove = {},
 Update = {},
 			},
+=======
+				item = {},
+			},
+			List = {},
+			Remove = {},
+			Update = {},
+		},
+>>>>>>> RollanzMushing-master
 
 		Name = {},
 		Skills = {
@@ -32,12 +41,18 @@ Update = {},
 			List = {},
 			Info = {},
 		},
+<<<<<<< HEAD
 		Status = {},
 		Vitals = {},
+=======
+	Status = {},
+	Vitals = {},
+>>>>>>> RollanzMushing-master
 	}
 }
 
 function handle_GMCP(name, line, wc)
+<<<<<<< HEAD
   local command = wc[1]
   local args = wc[2]
   local handler_func_name = "handle_" .. command:lower():gsub("%.", "_")
@@ -49,6 +64,19 @@ function handle_GMCP(name, line, wc)
   --  Note("Processing " .. command .. " with arguments " .. args)
     handler_func(json.decode(args))
   end -- if
+=======
+	local command = wc[1]
+	local args = wc[2]
+	local handler_func_name = "handle_" .. command:lower():gsub("%.", "_")
+	local handler_func = _G[handler_func_name]
+	GMCPTrackProcess(command,args)
+	if handler_func == nil then
+	--  Note("No handler " .. handler_func_name .. " for " .. command .. " " .. args)
+	else
+	--  Note("Processing " .. command .. " with arguments " .. args)
+		handler_func(json.decode(args))
+	end -- if
+>>>>>>> RollanzMushing-master
 end -- function
 
 function handle_room_info(data)
@@ -68,7 +96,11 @@ function handle_char_status(data)
 end -- function
 
 function handle_char_afflictions_list(data)
+<<<<<<< HEAD
   	tablex.update(gmcp.Char.Afflictions.List, data)
+=======
+	tablex.update(gmcp.Char.Afflictions.List, data)
+>>>>>>> RollanzMushing-master
 end -- function
 
 function handle_char_afflictions_add(data)
@@ -84,7 +116,11 @@ function handle_char_defences_list(data)
 end -- function
 
 function handle_char_defences_add(data)
+<<<<<<< HEAD
 		tablex.update(gmcp.Char.Defences.Add, data)
+=======
+	tablex.update(gmcp.Char.Defences.Add, data)
+>>>>>>> RollanzMushing-master
 end -- function
 
 function handle_char_defences_remove(data)
@@ -105,11 +141,19 @@ function handle_room_removeplayer(data)
 end -- function
 
 function handle_char_items_add (data)
+<<<<<<< HEAD
 			tablex.update(gmcp.Char.Items.Add, data)
 end -- function
 
 function handle_char_items_remove (data)
 			gmcp.Char.Items.Add[data.item.id] = nil
+=======
+	tablex.update(gmcp.Char.Items.Add, data)
+end -- function
+
+function handle_char_items_remove (data)
+	gmcp.Char.Items.Add[data.item.id] = nil
+>>>>>>> RollanzMushing-master
 end -- function
 
 function handle_char_items_list(data)
@@ -127,14 +171,22 @@ function handle_comm_channel_text(data)
 	local speaker = data.channel
  
 	if string.find(speaker, "tell") then
+<<<<<<< HEAD
 	speaker = "tells"
  end -- if
 
  AddToHistory(speaker, false, StripANSI(data.text))
+=======
+		speaker = "tells"
+	end -- if
+
+	AddToHistory(speaker, false, StripANSI(data.text))
+>>>>>>> RollanzMushing-master
 end -- function
 
 function ItemNames(tbl)
   if tbl == nil then
+<<<<<<< HEAD
     tbl = {}
   end -- if
   local names = {}
@@ -142,6 +194,15 @@ function ItemNames(tbl)
     names[#names+1] = item.name
   end -- for
   return names
+=======
+		tbl = {}
+	end -- if
+	local names = {}
+	for id, item in pairs(tbl) do
+		names[#names+1] = item.name
+	end -- for
+	return names
+>>>>>>> RollanzMushing-master
 end -- function
 
 
@@ -151,6 +212,7 @@ end -- function
 GMCPTrack = GMCPTrack or {}
 
 function GMCPTrackProcess(source, message)
+<<<<<<< HEAD
   --Note(source .. " = " .. message)
   if not GMCPTrack[source] or type(GMCPTrack[source]) ~= "function" then
     return
@@ -164,10 +226,40 @@ GMCPTrack["Char.Afflictions.List"] = function(message)
 	local affsList = json.decode(message)
 	for i,v in ipairs(affsList) do
 	  oracle.affs[v.name] = true
+=======
+	--Note(source .. " = " .. message)
+	if not GMCPTrack[source] or type(GMCPTrack[source]) ~= "function" then
+		return
+	else
+		GMCPTrack[source](message)
+	end -- if
+end -- function
+
+GMCPTrack["Char.Afflictions.List"] = function(message)
+	if oracle.affs and oracle.affs.pressure then
+		local pressLevel = oracle.affs.pressure
+	end
+	oracle.affs = {}
+	local affsList = json.decode(message)
+	for i,v in ipairs(affsList) do
+		local name, level = string.match(v.name, "(%a+) %((%d+)%)")
+		if name and level then
+			oracle.affs[name] = tonumber(level)
+		elseif v.name == "pressure" then
+			if pressLevel then
+				oracle.affs[v.name] = pressLevel
+			else
+				oracle.affs[v.name] = 1
+			end
+		else
+			oracle.affs[v.name] = true
+		end --if
+>>>>>>> RollanzMushing-master
 	end -- for
 end -- function
 
 GMCPTrack["Char.Afflictions.Add"] = function(message)
+<<<<<<< HEAD
   oracle.affs = oracle.affs or {}
   local newAff = json.decode(message)
   oracle.affs[newAff.name] = true
@@ -180,6 +272,33 @@ GMCPTrack["Char.Afflictions.Remove"] = function(message)
   for i,v in ipairs(removedAffs) do
     oracle.affs[v] = false
   end -- for
+=======
+	oracle.affs = oracle.affs or {}
+	local newAff = json.decode(message)
+	local name, level = string.match(newAff.name, "(%a+) %((%d+)%)")
+	if name and level then
+		oracle.affs[name] = tonumber(level)
+	else
+		oracle.affs[newAff.name] = true
+	end --if
+end -- function
+
+GMCPTrack["Char.Afflictions.Remove"] = function(message)
+	oracle.affs = oracle.affs or {}
+	affRemoveString=message
+	removedAffs = json.decode(message)
+	for i,v in ipairs(removedAffs) do
+		local name, level = string.match(v, "(%a+) %((%d+)%)")
+		if name and level then
+			oracle.affs[name] = tonumber(level) - 1
+			if oracle.affs[name] <= 0 then
+				oracle.affs[name] = false
+			end -- end
+		else
+			oracle.affs[v] = false
+		end --if
+	end -- for
+>>>>>>> RollanzMushing-master
 end -- function
 
 GMCPTrack["Char.Defences.List"] = function(message)
@@ -191,6 +310,7 @@ GMCPTrack["Char.Defences.List"] = function(message)
 end -- function
 
 GMCPTrack["Char.Defences.Add"] = function(message)
+<<<<<<< HEAD
   oracle.defs = oracle.defs or {}
   local newDef = json.decode(message)
   oracle.defs[newDef.name] = true
@@ -201,6 +321,18 @@ GMCPTrack["Char.Defences.Remove"] = function(message)
 	local removedDefs = json.decode(message)
 	for i,v in ipairs(removedDefs) do
 	  oracle.defs[v] = false
+=======
+	oracle.defs = oracle.defs or {}
+	local newDef = json.decode(message)
+	oracle.defs[newDef.name] = true
+end -- function
+
+GMCPTrack["Char.Defences.Remove"] = function(message)
+	oracle.defs = oracle.defs or {}
+	local removedDefs = json.decode(message)
+	for i,v in ipairs(removedDefs) do
+		oracle.defs[v] = false
+>>>>>>> RollanzMushing-master
 	end -- for
 end -- function
 
