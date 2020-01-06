@@ -1,6 +1,7 @@
 require "json"
 local tablex = require "pl.tablex"
 
+oracle = oracle or {}
 -- Define gmcp tables --
 gmcp = {
 	Room = {
@@ -143,7 +144,53 @@ function ItemNames(tbl)
 	return names
 end -- function
 
+--This section defines the mob_table
+--mob_table
+oracle.mob_table = oracle.mob_table or {}
+local mob_table = oracle.mob_table
+mob_table.list = {}
 
+function mob_table:add(mob)
+	if not mob or not mob.id then
+		return
+	end
+	for i,v in ipairs(self.list) do
+		if v.id == mob.id then
+			return
+		end
+	end
+	self.list[#self.list + 1] = mob
+end
+
+function mob_table:remove(mob)
+	if not mob or not mob.id then
+		return
+	end
+	for i,v in ipairs(self.list) do
+		if v.id == mob.id then
+			table.remove(self.list, i)
+			return
+		end
+	end
+end
+
+function mob_table:clear()
+	self.list = {}
+end
+
+function mob_table:room_items_parse()
+	if not oracle.items or not oracle.items.room then
+		return
+	end
+	self:clear()
+	for k,v in pairs(oracle.items.room) do
+		if type(v.attrib) == "string" then
+			if string.match(v.attrib, "m") and not string.match(v.attrib, "x") and not string.match(v.attrib, "d") then
+				mob_table.list[#mob_table.list + 1] = v
+			end
+		end
+	end
+end
 
 --This section tracks state based on GMCP messages
 
@@ -230,3 +277,44 @@ GMCPTrack["Char.Defences.Remove"] = function(message)
 	end -- for
 end -- function
 
+GMCPTrack["Char.Items.List"] = function(message)
+	oracle.items = oracle.items or {}
+	--oracle.items.room = oracle.items.room or {}
+	--oracle.items.inv = oracle.items.inv or {}
+	local item_list = json.decode(message)
+	if item_list.location == "room" then
+		oracle.items.room = {}
+		for _,v in ipairs(item_list.items) do
+			oracle.items.room[v.id] = v
+		end
+		mob_table:room_items_parse()
+	end
+end
+
+GMCPTrack["Char.Items.Add"] = function(message)
+	oracle.items = oracle.items or {}
+	oracle.items.room = oracle.items.room or {}
+	--oracle.items.room = oracle.items.room or {}
+	--oracle.items.inv = oracle.items.inv or {}
+	local item_to_add = json.decode(message)
+	local attrib = item_to_add.item.attrib
+	if item_to_add.location == "room" then
+		oracle.items.room[item_to_add.item.id] = item_to_add.item
+		if string.match(attrib, "m") and not string.match(attrib, "x") and not string.match(attrib, "d") then
+			mob_table:add(item_to_add.item)
+		end
+	end
+end
+
+GMCPTrack["Char.Items.Remove"] = function(message)
+  oracle.items = oracle.items or {}
+	oracle.items.room = oracle.items.room or {}
+	local item_to_remove = json.decode(message)
+	local attrib = item_to_remove.item.attrib
+	if item_to_remove.location == "room" then
+		oracle.items.room[item_to_remove.item.id] = nil
+		if string.match(attrib, "m") then
+			mob_table:remove(item_to_remove.item)
+		end
+	end
+end
