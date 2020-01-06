@@ -12,6 +12,7 @@ stringx.import()
 -- Achaea imports --
 require "achaea/communications"
 require "achaea/gmcp"
+require "achaea/goldtracker"
 require "achaea/sound"
 
 -- Define some variables --
