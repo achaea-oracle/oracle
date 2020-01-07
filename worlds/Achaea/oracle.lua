@@ -30,6 +30,26 @@ end
 oracle = oracle or {}
 oracle.affs = oracle.affs or {}
 oracle.defs = oracle.defs or {}
+oracle.items = oracle.items or {}
+
+-- debug functions --
+oracle.debug = oracle.debug or {}
+oracle.debug.level = 10 -- lower this before release
+
+local levels = {
+	[1] = { color = "red", name = "ERROR" },
+	[2] = { color = "OrangeRed", name = "WARNING" },
+	[3] = { color = "gold", name = "INFO" },
+	[4] = { color = "PaleGoldenrod", name = "DEBUG" },
+	default = { color = "light_grey", name = "VERBOSE" },
+}
+
+oracle.debug.print = function(level, str)
+	local debugLevel = levels[level]
+	if oracle.debug.level >= level then
+		Note(string.format("[%s]: %s", debugLevel[name], str)
+	end -- if
+end -- function
 
 oracle.echo = function(what)
 	Note("[Oracle]: "..what)
