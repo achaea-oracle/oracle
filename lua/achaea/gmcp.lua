@@ -115,6 +115,8 @@ end
 GMCPTrack = GMCPTrack or {}
 
 function GMCPTrackProcess(source, message)
+	if string.find(source, "Display") then return end -- if
+
 	oracle.debug.print(10, source .. " = " .. message)
 	if not GMCPTrack[source] or type(GMCPTrack[source]) ~= "function" then
 		return
