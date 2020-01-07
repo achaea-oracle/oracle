@@ -115,7 +115,7 @@ end
 GMCPTrack = GMCPTrack or {}
 
 function GMCPTrackProcess(source, message)
-	--Note(source .. " = " .. message)
+	oracle.debug.print(10, source .. " = " .. message)
 	if not GMCPTrack[source] or type(GMCPTrack[source]) ~= "function" then
 		return
 	else
@@ -255,5 +255,11 @@ GMCPTrack["Char.Items.Remove"] = function(message)
 			mobs:remove(itemToRemove.item)
 		end -- if
 	end -- if
+end -- function
+
+GMCPTrack["IRE.Rift.Change"] = function(message)
+	local riftItem = json.decode(message)
+	oracle.rift = oracle.rift or {}
+	oracle.rift[riftItem.name] = tonumber(riftItem.amount)
 end -- function
 

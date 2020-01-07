@@ -34,7 +34,7 @@ oracle.items = oracle.items or {}
 
 -- debug functions --
 oracle.debug = oracle.debug or {}
-oracle.debug.level = 10 -- lower this before release
+oracle.debug.level = 2 -- lower this before release
 
 local levels = {
 	[1] = { colour = "red", bg = "#00FF00", name = "ERROR" },
