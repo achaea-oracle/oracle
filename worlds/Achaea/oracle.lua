@@ -37,17 +37,17 @@ oracle.debug = oracle.debug or {}
 oracle.debug.level = 10 -- lower this before release
 
 local levels = {
-	[1] = { colour = "red", name = "ERROR" },
-	[2] = { colour = "OrangeRed", name = "WARNING" },
-	[3] = { colour = "gold", name = "INFO" },
-	[4] = { colour = "PaleGoldenrod", name = "DEBUG" },
-	default = { colour = "light_grey", name = "VERBOSE" },
+	[1] = { colour = "red", bg = "#00FF00", name = "ERROR" },
+	[2] = { colour = "orangered", bg = "black", name = "WARNING" },
+	[3] = { colour = "gold", bg = "black", name = "INFO" },
+	[4] = { colour = "palegoldenrod", bg = "black", name = "DEBUG" },
+	default = { colour = "lightgrey", bg = "black", name = "VERBOSE" },
 }
 
 oracle.debug.print = function(level, str)
 	local debugLevel = levels[level]
 	if oracle.debug.level >= level then
-		ColourNote(debugLevel[colour], string.format("[%s]: %s", debugLevel[name], str)
+		ColourNote(debugLevel.colour, debugLevel.bg, string.format("[%s]: %s", debugLevel[name], str)
 	end -- if
 end -- function
 
