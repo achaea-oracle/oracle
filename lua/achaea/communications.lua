@@ -1,7 +1,7 @@
 function handleCommunications(n, l, wc)
-local channel = wc[1]
-local talker = wc[2]
-local text = wc[3]
+	local channel = wc[1]
+	local talker = wc[2]
+	local text = wc[3]
 	AddToHistory(channel, talker, text)
 end -- function
 

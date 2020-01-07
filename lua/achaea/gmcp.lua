@@ -48,20 +48,6 @@ function handle_GMCP(name, line, wc)
 	GMCPTrackProcess(command,args)
 end -- function
 
-
-function handle_comm_channel_text(data)
-	local text = StripANSI(data.text)
-	if text:startswith("(") then return end -- if
-
-	local speaker = data.channel
- 
-	if string.find(speaker, "tell") then
-		speaker = "tells"
-	end -- if
-
-	AddToHistory(speaker, false, StripANSI(data.text))
-end -- function
-
 --This section defines the mobs table
 --mobs
 oracle.mobs = oracle.mobs or {}
@@ -265,3 +251,16 @@ GMCPTrack["IRE.Rift.Change"] = function(message)
 	oracle.rift[riftItem.name] = tonumber(riftItem.amount)
 end -- function
 
+GMCPTrack["Comm.Channel.Text"] = function(message)
+	local data = json.decode(message)
+	local text = StripANSI(data.text)
+	if text:startswith("(") then return end -- if
+
+	local speaker = data.channel
+ 
+	if string.find(speaker, "tell") then
+		speaker = "tells"
+	end -- if
+
+	AddToHistory(speaker, false, StripANSI(data.text))
+end -- function
