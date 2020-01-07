@@ -187,6 +187,8 @@ spell/english-words.10
 spell/english-words.20
 spell/english-words.35
 spell/english-words.40
+worlds/achaea/sounds/**
+worlds/achaea/settings/**
 worlds/plugins/ANSI_Log.xml
 worlds/plugins/ATCP_Mapper.xml
 worlds/plugins/ATCP_NJG.xml
