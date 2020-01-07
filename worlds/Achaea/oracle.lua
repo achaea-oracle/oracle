@@ -47,7 +47,7 @@ local levels = {
 oracle.debug.print = function(level, str)
 	local debugLevel = levels[level]
 	if oracle.debug.level >= level then
-		ColourNote(debugLevel.colour, debugLevel.bg, string.format("[%s]: %s", debugLevel[name], str)
+		ColourNote(debugLevel.colour, debugLevel.bg, string.format("[%s]: %s", debugLevel.name, str)
 	end -- if
 end -- function
 
