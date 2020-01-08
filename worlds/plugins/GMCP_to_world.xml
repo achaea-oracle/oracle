@@ -21,6 +21,20 @@ Install into IRE games to catch ATCP messages.
 
 </plugin>
 
+<!--  Aliases  -->
+<aliases>
+  <alias
+   match="^gmcp (.*)$"
+   enabled="y"
+   regexp="y"
+   send_to="12"
+   sequence="100"
+  >
+  <send>SendGMCPPacket("%1")
+  Send("")
+  </send>
+  </alias>
+</aliases>
 
 <!--  Script  -->
 
