@@ -225,7 +225,7 @@ GMCPTrack["Char.Items.Add"] = function(message)
 	local attrib = itemToAdd.item.attrib
 	if itemToAdd.location == "room" then
 		oracle.items.room[itemToAdd.item.id] = itemToAdd.item
-		if string.match(attrib, "m") and not string.match(attrib, "x") and not string.match(attrib, "d") then
+		if type(attrib) == "string" and string.match(attrib, "m") and not string.match(attrib, "x") and not string.match(attrib, "d") then
 			mobs:add(itemToAdd.item)
 		end -- if
 	end -- if
@@ -239,7 +239,7 @@ GMCPTrack["Char.Items.Remove"] = function(message)
 	local attrib = itemToRemove.item.attrib
 	if itemToRemove.location == "room" then
 		oracle.items.room[itemToRemove.item.id] = nil
-		if string.match(attrib, "m") then
+		if type(attrib)=="string" and string.match(attrib, "m") then
 			mobs:remove(itemToRemove.item)
 		end -- if
 	end -- if
