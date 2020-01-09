@@ -40,6 +40,16 @@ gmcp = {
 			List = {},
 		},
 	},
+	IRE = {
+		Rift = {
+			List = {},
+			Change = {},
+		},
+		Target = {
+			Set = {},
+			Info = {},
+		},
+	},
 }
 
 function handle_GMCP(name, line, wc)
@@ -245,10 +255,25 @@ GMCPTrack["Char.Items.Remove"] = function(message)
 	end -- if
 end -- function
 
+GMCPTrack["IRE.Rift.List"] = function(message)
+	local riftItems = json.decode(message)
+	tablex.update(gmcp.IRE.Rift.List, riftItems)
+	oracle.rift = oracle.rift or {}
+	for k,v in pairs(riftItems) do
+		oracle.rift[v.name] = v.amount
+	end -- for
+end -- function
+
 GMCPTrack["IRE.Rift.Change"] = function(message)
 	local riftItem = json.decode(message)
+	tablex.update(gmcp.IRE.Rift.Change, riftItem)
 	oracle.rift = oracle.rift or {}
 	oracle.rift[riftItem.name] = tonumber(riftItem.amount)
+end -- function
+
+GMCPTrack["IRE.Target.Info"] = function(message)
+	local targetInfo = json.decode(message)
+	tablex.update(gmcp.IRE.Target.Info, targetInfo)
 end -- function
 
 GMCPTrack["Comm.Channel.Text"] = function(message)
