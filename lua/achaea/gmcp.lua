@@ -289,3 +289,17 @@ GMCPTrack["Comm.Channel.Text"] = function(message)
 
 	AddToHistory(speaker, false, StripANSI(data.text))
 end -- function
+
+GMCPTrack["IRE.Composer.Edit"] = function(message)
+	local message = json.decode(message)
+	local title = message.title
+	local text = message.text:gsub("\n", "\r\n")
+	text = utils.editbox("Enter your content below", title, text)
+	if not text then
+		Send("*q")
+		SendNoEcho("*no")
+	else
+		Execute("gmcp IRE.Composer.SetBuffer " ..text:gsub("\r\n", "\n"))
+		SendNoEcho("*s")
+	end -- if
+end -- function
