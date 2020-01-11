@@ -299,7 +299,7 @@ GMCPTrack["IRE.Composer.Edit"] = function(message)
 		Send("*q")
 		SendNoEcho("*no")
 	else
-		Execute("gmcp IRE.Composer.SetBuffer " ..text:gsub("\r\n", "\n"))
+		CallPlugin("b007454f07bf5e41d15f15a0", "SendGMCPPacket", "IRE.Composer.SetBuffer {" .. text .. "}")
 		SendNoEcho("*s")
 	end -- if
 end -- function
