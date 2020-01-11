@@ -296,7 +296,7 @@ GMCPTrack["IRE.Composer.Edit"] = function(message)
 	local text = message.text:gsub("\n", "\r\n")
 	text = utils.editbox("Enter your content below", title, text)
 	if not text then
-		Send("*q")
+		SendNoEcho("*q")
 		SendNoEcho("*no")
 	else
 		CallPlugin("b007454f07bf5e41d15f15a0", "SendGMCPPacket", "IRE.Composer.SetBuffer {" .. text .. "}")
