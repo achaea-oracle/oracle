@@ -134,6 +134,28 @@ end -- function
 GMCPTrack["Char.Vitals"] = function(message)
 	local vitals = json.decode(message)
 	tablex.update(gmcp.Char.Vitals, vitals)
+
+	local stats = oracle.stats
+
+	stats = stats or {}
+		stats.lasthp = tonumber(stats.hp) or 0
+	stats.hp = tonumber(vitals.hp)
+	stats.deltahp = stats.hp - stats.lasthp
+	stats.lastmp = tonumber(stats.mp) or 0
+	stats.mp = tonumber(vitals.mp)
+	stats.deltamp = stats.mp - stats.lastmp
+	stats.lastep = tonumber(stats.ep) or 0
+	stats.ep = tonumber(vitals.ep)
+	stats.lastwp = tonumber(stats.wp) or 0
+	stats.wp = vitals.wp
+
+	-- special charstats --
+	local bleed = vitals.charstats[1]
+	bleed = bleed:gsub("%d", "")
+	stats.bleed = tonumber(bleed)
+	local rage = vitals.charstats[2]
+	rage = rage:gsub("%D", "")
+	stats.rage = rage
 end -- function
 
 GMCPTrack["Char.Afflictions.List"] = function(message)

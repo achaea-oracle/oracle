@@ -31,6 +31,7 @@ oracle = oracle or {}
 oracle.affs = oracle.affs or {}
 oracle.defs = oracle.defs or {}
 oracle.items = oracle.items or {}
+oracle.stats = oracle.stats or {}
 
 -- debug functions --
 oracle.debug = oracle.debug or {}
