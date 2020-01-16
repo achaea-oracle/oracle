@@ -139,15 +139,15 @@ GMCPTrack["Char.Vitals"] = function(message)
 
 	stats = stats or {}
 		stats.lasthp = tonumber(stats.hp) or 0
-	stats.hp = tonumber(vitals.hp)
+	stats.hp = tonumber(vitals.hp) or stats.lasthp or 0
 	stats.deltahp = stats.hp - stats.lasthp
 	stats.lastmp = tonumber(stats.mp) or 0
-	stats.mp = tonumber(vitals.mp)
+	stats.mp = tonumber(vitals.mp) or stats.lastmp or 0
 	stats.deltamp = stats.mp - stats.lastmp
 	stats.lastep = tonumber(stats.ep) or 0
-	stats.ep = tonumber(vitals.ep)
+	stats.ep = tonumber(vitals.ep) or 0
 	stats.lastwp = tonumber(stats.wp) or 0
-	stats.wp = vitals.wp
+	stats.wp = tonumber(vitals.wp) or 0
 
 	-- special charstats --
 	local bleed = vitals.charstats[1]
