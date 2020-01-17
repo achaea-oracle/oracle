@@ -6,7 +6,7 @@ oracle = oracle or {}
 gmcp = {
 	Room = {
 		AddPlayer = {},
-			Info = {},
+		Info = {},
 		Players = {},
 	},
 	Char = {
@@ -31,9 +31,9 @@ gmcp = {
 			Groups = {},
 			List = {},
 			Info = {},
-	},
-	Status = {},
-	Vitals = {},
+		},
+		Status = {},
+		Vitals = {},
 	},
 	Comm = {
 		Channel = {
@@ -63,6 +63,7 @@ end -- function
 oracle.mobs = oracle.mobs or {}
 local mobs = oracle.mobs
 mobs.list = {}
+
 
 function mobs:add(mob)
 	if not mob or not mob.id then
@@ -106,6 +107,58 @@ function mobs:parseRoomItems()
 	end
 end
 
+--define tables and methods associated with inventory items
+oracle.items = {}
+oracle.items.inv = {}
+oracle.items.inv.items = {}
+oracle.items.inv.wielded = {}
+function oracle.items.inv:setWielded(hand, item)
+	if hand == "both" then
+		self.wielded.both = { name = item.name, id = item.id }
+		self.wielded.left = false
+		self.wielded.right = false
+	elseif hand == "left" then
+		self.wielded.left = { name = item.name, id = item.id }
+		self.wielded.both = false
+	elseif hand == "right" then
+		self.wielded.right = { name = item.name, id = item.id }
+		self.wielded.both = false
+	end
+end
+
+function oracle.items.inv:parse()
+	for k,v in pairs(self.items) do
+		self:parseSingle(v)
+	end
+end
+
+function oracle.items.inv:parseSingle(item, toRemove) --toRemove is optional
+	if not toRemove then
+		if item.attrib and string.find(item.attrib, "lL") then
+			self:setWielded("both", item )
+		elseif item.attrib and string.find(item.attrib, "l") then
+			self:setWielded("left", item )
+		elseif item.attrib and string.find(item.attrib, "L") then
+			self:setWielded("right", item)
+		end
+	else
+		for k,v in pairs(self.wielded) do
+			if v.id == item.id then
+				self.wielded[k] = false
+			end
+		end
+	end
+end
+
+function oracle.items.inv:add(item)
+	self.items[item.id] = item
+	self:parseSingle(item)
+end
+
+function oracle.items.inv:remove(item)
+	self.items[item.id] = nil
+	self:parseSingle(item, true)
+end
 --This section tracks state based on GMCP messages
 
 GMCPTrack = GMCPTrack or {}
@@ -138,7 +191,7 @@ GMCPTrack["Char.Vitals"] = function(message)
 	local stats = oracle.stats
 
 	stats = stats or {}
-		stats.lasthp = tonumber(stats.hp) or 0
+	stats.lasthp = tonumber(stats.hp) or 0
 	stats.hp = tonumber(vitals.hp)
 	stats.deltahp = stats.hp - stats.lasthp
 	stats.lastmp = tonumber(stats.mp) or 0
@@ -246,7 +299,14 @@ GMCPTrack["Char.Items.List"] = function(message)
 			oracle.items.room[v.id] = v
 		end -- for
 		mobs:parseRoomItems()
-	end -- if
+	elseif itemList.location == "inv" then
+		oracle.items.inv.items = {}
+		oracle.items.inv.wielded = {}
+		for i,v in ipairs(itemList.items) do
+			oracle.items.inv.items[v.id] = v
+		end
+    oracle.items.inv:parse()
+  end
 end -- function
 
 GMCPTrack["Char.Items.Add"] = function(message)
@@ -260,6 +320,8 @@ GMCPTrack["Char.Items.Add"] = function(message)
 		if type(attrib) == "string" and string.match(attrib, "m") and not string.match(attrib, "x") and not string.match(attrib, "d") then
 			mobs:add(itemToAdd.item)
 		end -- if
+	elseif itemToAdd.location == "inv" then
+		oracle.items.inv:add(itemToAdd.item)
 	end -- if
 end -- function
 
@@ -274,6 +336,8 @@ GMCPTrack["Char.Items.Remove"] = function(message)
 		if type(attrib)=="string" and string.match(attrib, "m") then
 			mobs:remove(itemToRemove.item)
 		end -- if
+	elseif itemToRemove.location == "inv" then
+		oracle.items.inv:remove(itemToRemove.item)
 	end -- if
 end -- function
 
