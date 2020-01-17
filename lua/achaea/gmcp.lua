@@ -51,6 +51,26 @@ gmcp = {
 		},
 	},
 }
+GMCPDeepUpdate = function(t1,t2)
+	if type(t1)~="table" or type(t2)~="table" then
+		return
+	end
+	if t1[1] or t2[1] then --table is an array
+		t1 = t2 --replace with new array
+	else
+		for k,v in pairs(t2) do
+			if type(v) == "table" then
+				if type(t1[k]) ~= "table" then
+					t1[k] = {}
+				end
+				t1[k] = GMCPDeepUpdate(t1[k], v)
+			else
+				t1[k] = v
+			end
+		end
+	end
+	return t1
+end
 
 function handle_GMCP(name, line, wc)
 	local command = wc[1]
@@ -143,7 +163,7 @@ function oracle.items.inv:parseSingle(item, toRemove) --toRemove is optional
 		end
 	else
 		for k,v in pairs(self.wielded) do
-			if v.id == item.id then
+			if v and v.id == item.id then
 				self.wielded[k] = false
 			end
 		end
@@ -176,17 +196,20 @@ end -- function
 
 GMCPTrack["Char.Status"] = function(message)
 	local status = json.decode(message)
-	tablex.update(gmcp.Char.Status, status)
+	if status.class then
+		oracle.my_class = status.class
+	end
+	GMCPDeepUpdate(gmcp.Char.Status, status)
 end -- function
 
 GMCPTrack["Char.Name"] = function(message)
 	local name = json.decode(message)
-	tablex.update(gmcp.Char.Name, name)
+	GMCPDeepUpdate(gmcp.Char.Name, name)
 end -- function
 
 GMCPTrack["Char.Vitals"] = function(message)
 	local vitals = json.decode(message)
-	tablex.update(gmcp.Char.Vitals, vitals)
+	GMCPDeepUpdate(gmcp.Char.Vitals, vitals)
 
 	local stats = oracle.stats
 
@@ -212,7 +235,7 @@ GMCPTrack["Char.Vitals"] = function(message)
 end -- function
 
 GMCPTrack["Char.Afflictions.List"] = function(message)
-	tablex.update(gmcp.Char.Afflictions.List, json.decode(message))
+	gmcp.Char.Afflictions.List = json.decode(message)
 	if oracle.affs and oracle.affs.pressure then
 		local pressLevel = oracle.affs.pressure
 	end -- if
@@ -235,7 +258,7 @@ GMCPTrack["Char.Afflictions.List"] = function(message)
 end -- function
 
 GMCPTrack["Char.Afflictions.Add"] = function(message)
-	tablex.update(gmcp.Char.Afflictions.Add, json.decode(message))
+	GMCPDeepUpdate(gmcp.Char.Afflictions.Add, json.decode(message))
 	oracle.affs = oracle.affs or {}
 	local newAff = json.decode(message)
 	local name, level = string.match(newAff.name, "(%a+) %((%d+)%)")
@@ -267,7 +290,7 @@ end -- function
 GMCPTrack["Char.Defences.List"] = function(message)
 	oracle.defs = {}
 	local defsList = json.decode(message)
-	tablex.update(gmcp.Char.Defences.List, defsList)
+	gmcp.Char.Defences.List = defsList
 	for i,v in ipairs(defsList) do
 		oracle.defs[v.name] = true
 	end -- for
@@ -276,7 +299,7 @@ end -- function
 GMCPTrack["Char.Defences.Add"] = function(message)
 	oracle.defs = oracle.defs or {}
 	local newDef = json.decode(message)
-	tablex.update(gmcp.Char.Defences.Add, newDef)
+	GMCPDeepUpdate(gmcp.Char.Defences.Add, newDef)
 	oracle.defs[newDef.name] = true
 end -- function
 
@@ -292,7 +315,7 @@ end -- function
 GMCPTrack["Char.Items.List"] = function(message)
 	oracle.items = oracle.items or {}
 	local itemList = json.decode(message)
-	tablex.update(gmcp.Char.Items.List, itemList)
+	GMCPDeepUpdate(gmcp.Char.Items.List, itemList)
 	if itemList.location == "room" then
 		oracle.items.room = {}
 		for _,v in ipairs(itemList.items) do
@@ -313,7 +336,7 @@ GMCPTrack["Char.Items.Add"] = function(message)
 	oracle.items = oracle.items or {}
 	oracle.items.room = oracle.items.room or {}
 	local itemToAdd = json.decode(message)
-	tablex.update(gmcp.Char.Items.Add, itemToAdd)
+	GMCPDeepUpdate(gmcp.Char.Items.Add, itemToAdd)
 	local attrib = itemToAdd.item.attrib
 	if itemToAdd.location == "room" then
 		oracle.items.room[itemToAdd.item.id] = itemToAdd.item
@@ -329,7 +352,7 @@ GMCPTrack["Char.Items.Remove"] = function(message)
   oracle.items = oracle.items or {}
 	oracle.items.room = oracle.items.room or {}
 	local itemToRemove = json.decode(message)
-	tablex.update(gmcp.Char.Items.Remove, itemToRemove)
+	GMCPDeepUpdate(gmcp.Char.Items.Remove, itemToRemove)
 	local attrib = itemToRemove.item.attrib
 	if itemToRemove.location == "room" then
 		oracle.items.room[itemToRemove.item.id] = nil
@@ -343,7 +366,7 @@ end -- function
 
 GMCPTrack["IRE.Rift.List"] = function(message)
 	local riftItems = json.decode(message)
-	tablex.update(gmcp.IRE.Rift.List, riftItems)
+	gmcp.IRE.Rift.List = riftItems
 	oracle.rift = oracle.rift or {}
 	for k,v in pairs(riftItems) do
 		oracle.rift[v.name] = v.amount
@@ -352,14 +375,14 @@ end -- function
 
 GMCPTrack["IRE.Rift.Change"] = function(message)
 	local riftItem = json.decode(message)
-	tablex.update(gmcp.IRE.Rift.Change, riftItem)
+	GMCPDeepUpdate(gmcp.IRE.Rift.Change, riftItem)
 	oracle.rift = oracle.rift or {}
 	oracle.rift[riftItem.name] = tonumber(riftItem.amount)
 end -- function
 
 GMCPTrack["IRE.Target.Info"] = function(message)
 	local targetInfo = json.decode(message)
-	tablex.update(gmcp.IRE.Target.Info, targetInfo)
+	GMCPDeepUpdate(gmcp.IRE.Target.Info, targetInfo)
 end -- function
 
 GMCPTrack["Comm.Channel.Text"] = function(message)
