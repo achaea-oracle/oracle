@@ -226,6 +226,13 @@ GMCPTrack["Char.Vitals"] = function(message)
 	stats.wp = vitals.wp
 
 	-- special charstats --
+	if vitals.charstats then
+		oracle.charstats = {}
+		for _,v in ipairs(vitals.charstats) do
+			local k2, v2 = string.match(v, "(.+): (.+)")
+			oracle.charstats[k2] = tonumber(v2) or v2
+		end
+	end
 	local bleed = vitals.charstats[1]
 	bleed = bleed:gsub("%d", "")
 	stats.bleed = tonumber(bleed)
