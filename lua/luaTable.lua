@@ -81,3 +81,12 @@ function loadSettingsFile(filename)
  local file = savedir.."/"..filename..".ach"
  table.load(file)
 end -- function
+
+function percent(n1, n2)
+	if not tonumber(n1) or not tonumber(n2) then 
+		return
+	end -- if
+
+	-- return a higher percent to be safe when going for instakills etc
+	return math.ceil(n1 / n2 * 100)
+end -- function
