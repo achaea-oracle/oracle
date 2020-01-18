@@ -179,8 +179,8 @@ function oracle.items.inv:remove(item)
 	self.items[item.id] = nil
 	self:parseSingle(item, true)
 end
---This section tracks state based on GMCP messages
 
+--This section tracks state based on GMCP messages
 GMCPTrack = GMCPTrack or {}
 
 function GMCPTrackProcess(source, message)
@@ -197,8 +197,8 @@ end -- function
 GMCPTrack["Char.Status"] = function(message)
 	local status = json.decode(message)
 	if status.class then
-		oracle.my_class = status.class
-	end
+		oracle.myClass = status.class
+	end -- if
 	GMCPDeepUpdate(gmcp.Char.Status, status)
 end -- function
 
@@ -215,15 +215,19 @@ GMCPTrack["Char.Vitals"] = function(message)
 
 	stats = stats or {}
 	stats.lasthp = tonumber(stats.hp) or 0
-	stats.hp = tonumber(vitals.hp)
+	stats.hp = tonumber(vitals.hp) or 0
 	stats.deltahp = stats.hp - stats.lasthp
+	stats.hppercent = percent(stats.hp, stats.maxhp)
+	stats.deltahppercent = percent(stats.deltahp, stats.maxhp)
 	stats.lastmp = tonumber(stats.mp) or 0
-	stats.mp = tonumber(vitals.mp)
+	stats.mp = tonumber(vitals.mp) or 0
 	stats.deltamp = stats.mp - stats.lastmp
+	stats.mppercent = percent(stats.mp, stats.maxmp)
+	stats.deltamppercent = percent(stats.deltamp, stats.maxmp)
 	stats.lastep = tonumber(stats.ep) or 0
-	stats.ep = tonumber(vitals.ep)
+	stats.ep = tonumber(vitals.ep) or 0
 	stats.lastwp = tonumber(stats.wp) or 0
-	stats.wp = vitals.wp
+	stats.wp = tonumber(vitals.wp) or 0
 
 	-- special charstats --
 	if vitals.charstats then
