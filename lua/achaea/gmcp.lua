@@ -343,8 +343,8 @@ GMCPTrack["Char.Items.List"] = function(message)
 		for i,v in ipairs(itemList.items) do
 			oracle.items.inv.items[v.id] = v
 		end
-    oracle.items.inv:parse()
-  end
+		oracle.items.inv:parse()
+	end
 end -- function
 
 GMCPTrack["Char.Items.Add"] = function(message)
