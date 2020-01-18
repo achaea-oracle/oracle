@@ -1,5 +1,6 @@
 require "json"
-local tablex = require "pl.tablex"
+require "luatable"
+
 
 oracle = oracle or {}
 -- Define gmcp tables --

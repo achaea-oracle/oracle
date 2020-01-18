@@ -83,7 +83,7 @@ function loadSettingsFile(filename)
 end -- function
 
 function percent(n1, n2)
-	if not tonumber(n1) or tonumber(n2) then 
+	if not tonumber(n1) or not tonumber(n2) then 
 		return
 	end -- if
 
