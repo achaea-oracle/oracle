@@ -238,7 +238,9 @@ GMCPTrack["Char.Vitals"] = function(message)
 		oracle.charstats = {}
 		for _,v in ipairs(vitals.charstats) do
 			local k2, v2 = string.match(v, "(.+): (.+)")
-			oracle.charstats[k2] = tonumber(v2) or v2
+			if k2 then
+				oracle.charstats[k2] = tonumber(v2) or v2
+			end
 		end
 	end
 	local bleed = vitals.charstats[1]
