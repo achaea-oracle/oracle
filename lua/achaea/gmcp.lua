@@ -381,6 +381,30 @@ GMCPTrack["Char.Items.Remove"] = function(message)
 	end -- if
 end -- function
 
+GMCPTrack["Room.Info"] = function(message)
+	local roomInfo = json.decode(message)
+	GMCPDeepUpdate(gmcp.Room.Info, roomInfo)
+	exits = {}
+	for k,v in pairs(roomInfo.exits) do
+		table.insert(exits, k)
+	end -- for
+end -- function
+
+GMCPTrack["Room.Players"] = function(message)
+	local players = json.decode(message)
+	GMCPDeepUpdate(gmcp.Room.Players, players)
+end -- function
+
+GMCPTrack["Room.AddPlayer"] = function(message)
+	local addPlayer = json.decode(message)
+	GMCPDeepUpdate(gmcp.Room.AddPlayer, addPlayer)
+end -- function
+
+GMCPTrack["Room.RemovePlayer"] = function(message)
+	local removePlayer = json.decode(message)
+	gmcp.Room.RemovePlayer = removePlayer
+end -- function
+
 GMCPTrack["IRE.Rift.List"] = function(message)
 	local riftItems = json.decode(message)
 	gmcp.IRE.Rift.List = riftItems
@@ -400,6 +424,11 @@ end -- function
 GMCPTrack["IRE.Target.Info"] = function(message)
 	local targetInfo = json.decode(message)
 	GMCPDeepUpdate(gmcp.IRE.Target.Info, targetInfo)
+end -- function
+
+GMCPTrack["Comm.Channel.List"] = function(message)
+	local channels = json.decode(message)
+	GMCPDeepUpdate(gmcp.Comm.Channel.List, channels)
 end -- function
 
 GMCPTrack["Comm.Channel.Text"] = function(message)
