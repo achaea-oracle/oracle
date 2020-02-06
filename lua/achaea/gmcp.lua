@@ -216,7 +216,7 @@ GMCPTrack["Char.Vitals"] = function(message)
 
 	stats = stats or {}
 
-		stats.lasthp = tonumber(stats.hp) or 0
+	stats.lasthp = tonumber(stats.hp) or 0
 	stats.hp = tonumber(vitals.hp) or stats.lasthp or 0
 	stats.maxhp = tonumber(vitals.maxhp) or 0
 	stats.deltahp = stats.hp - stats.lasthp
@@ -256,6 +256,7 @@ GMCPTrack["Char.Afflictions.List"] = function(message)
 	if oracle.affs and oracle.affs.pressure then
 		local pressLevel = oracle.affs.pressure
 	end -- if
+	local oldAffs = oracle.affs
 	oracle.affs = {}
 	local affsList = json.decode(message)
 	for i,v in ipairs(affsList) do
@@ -272,6 +273,22 @@ GMCPTrack["Char.Afflictions.List"] = function(message)
 			oracle.affs[v.name] = true
 		end --if
 	end -- for
+	-- check for gained/lost affs
+	if type(oldAffs) == "table" then
+		local gainedAffs = {}
+		local lostAffs = {}
+		for k,v in pairs(oracle.affs) do
+			if v and not oldAffs[k] then
+				table.insert(gainedAffs,v)
+			end
+		end
+		for k,v in pairs(oldAffs) do
+			if v and not oracle.affs[k] then
+				table.insert(lostAffs, v)
+			end
+		end
+		oracle.listener:call("Char.Afflictions.List", {gained = gainedAffs, lost = lostAffs})
+	end
 end -- function
 
 GMCPTrack["Char.Afflictions.Add"] = function(message)
@@ -284,6 +301,9 @@ GMCPTrack["Char.Afflictions.Add"] = function(message)
 	else
 		oracle.affs[newAff.name] = true
 	end --if
+	if oracle.listener then
+		oracle.listener:call("Char.Afflictions.Add", newAff.name)
+	end
 end -- function
 
 GMCPTrack["Char.Afflictions.Remove"] = function(message)
@@ -297,9 +317,15 @@ GMCPTrack["Char.Afflictions.Remove"] = function(message)
 			oracle.affs[name] = tonumber(level) - 1
 			if oracle.affs[name] <= 0 then
 				oracle.affs[name] = false
+				if oracle.listener then
+					oracle.listener:call("Char.Afflictions.Remove", name)
+				end
 			end -- if
 		else
 			oracle.affs[v] = false
+			if oracle.listener then
+				oracle.listener:call("Char.Afflictions.Remove", v)
+			end
 		end --if
 	end -- for
 end -- function
