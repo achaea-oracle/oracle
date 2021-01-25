@@ -55,3 +55,81 @@ end -- function
 oracle.echo = function(what)
 	Note("[Oracle]: "..what)
 end -- function
+
+-- listener --
+oracle.listener = {}
+oracle.listener.callbacks = {}
+oracle.listener.callbackonce = {}
+
+--listener returns true if it proceeds to the end
+function oracle.listener:register(event, func, once)
+	local t
+	if type(event) ~= "string" or type(func) ~= "function" then
+		return
+	end -- if
+	if not once then
+		t = self.callbacks[event]
+	else
+		t = self.callbackonce[event]
+	end -- if
+	if not t or type(t) ~= "table" then
+		t = {}
+		if not once then
+			self.callbacks[event] = t
+		else
+			self.callbackonce[event] = t
+		end -- if
+	end -- if
+	for _,v in ipairs(t) do
+		if v == func then
+			return -- already registered
+		end -- if
+	end -- for
+	table.insert(t, func)
+	return true
+end -- function
+
+--call returns true if it proceeds to the end and none of the functions called raised errors, false otherwise
+function oracle.listener:call(event, arg)
+	if type(event) ~= "string" then
+		return false
+	end --if
+	local t = self.callbacks[event]
+	local t2 = self.callbackonce[event]
+	local no_error = true
+	if type(t) == "table" and #t > 0 then
+		for i,v in ipairs(t) do
+			no_error = pcall(v,arg) and no_error
+		end	 -- for
+	end -- if
+	if type(t2) == "table" and #t2 > 0 then
+		ColourNote("red", "blue", event)
+		for i,v in ipairs(t2) do
+			no_error = pcall(v,arg) and no_error
+		end -- for
+	end -- if
+	self.callbackonce[event] = nil
+	return no_error
+end -- function
+
+--unregister returns true if func was found and removed, nil if invalid argumetns, false otherwise
+function oracle.listener:unregister(event, func, once)
+	if type(event) ~= "string" or type(func) ~= "function" then
+		return
+	end -- if
+	if not once then
+		local t = self.callbacks[event]
+	else
+		local t = self.callbackonce[event]
+	end -- if
+	if type(t) ~= "table" or #t == 0 then
+		return false
+	else
+		for i,v in ipairs(t) do
+			if v == func then
+				table.remove(t, i)
+				return true
+			end -- if
+		end -- for
+	end -- if
+end -- function

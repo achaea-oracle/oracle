@@ -1,7 +1,6 @@
 require "json"
 require "luatable"
 
-
 oracle = oracle or {}
 -- Define gmcp tables --
 gmcp = {
@@ -74,6 +73,7 @@ GMCPDeepUpdate = function(t1,t2)
 end
 
 function handle_GMCP(name, line, wc)
+
 	local command = wc[1]
 	local args = wc[2]
 	GMCPTrackProcess(command,args)
@@ -216,7 +216,7 @@ GMCPTrack["Char.Vitals"] = function(message)
 
 	stats = stats or {}
 
-		stats.lasthp = tonumber(stats.hp) or 0
+	stats.lasthp = tonumber(stats.hp) or 0
 	stats.hp = tonumber(vitals.hp) or stats.lasthp or 0
 	stats.maxhp = tonumber(vitals.maxhp) or 0
 	stats.deltahp = stats.hp - stats.lasthp
@@ -256,6 +256,7 @@ GMCPTrack["Char.Afflictions.List"] = function(message)
 	if oracle.affs and oracle.affs.pressure then
 		local pressLevel = oracle.affs.pressure
 	end -- if
+	local oldAffs = oracle.affs
 	oracle.affs = {}
 	local affsList = json.decode(message)
 	for i,v in ipairs(affsList) do
@@ -272,6 +273,22 @@ GMCPTrack["Char.Afflictions.List"] = function(message)
 			oracle.affs[v.name] = true
 		end --if
 	end -- for
+	-- check for gained/lost affs
+	if type(oldAffs) == "table" then
+		local gainedAffs = {}
+		local lostAffs = {}
+		for k,v in pairs(oracle.affs) do
+			if v and not oldAffs[k] then
+				table.insert(gainedAffs,v)
+			end
+		end
+		for k,v in pairs(oldAffs) do
+			if v and not oracle.affs[k] then
+				table.insert(lostAffs, v)
+			end
+		end
+		oracle.listener:call("Char.Afflictions.List", {gained = gainedAffs, lost = lostAffs})
+	end
 end -- function
 
 GMCPTrack["Char.Afflictions.Add"] = function(message)
@@ -284,6 +301,9 @@ GMCPTrack["Char.Afflictions.Add"] = function(message)
 	else
 		oracle.affs[newAff.name] = true
 	end --if
+	if oracle.listener then
+		oracle.listener:call("Char.Afflictions.Add", newAff.name)
+	end
 end -- function
 
 GMCPTrack["Char.Afflictions.Remove"] = function(message)
@@ -297,9 +317,15 @@ GMCPTrack["Char.Afflictions.Remove"] = function(message)
 			oracle.affs[name] = tonumber(level) - 1
 			if oracle.affs[name] <= 0 then
 				oracle.affs[name] = false
+				if oracle.listener then
+					oracle.listener:call("Char.Afflictions.Remove", name)
+				end
 			end -- if
 		else
 			oracle.affs[v] = false
+			if oracle.listener then
+				oracle.listener:call("Char.Afflictions.Remove", v)
+			end
 		end --if
 	end -- for
 end -- function
@@ -381,6 +407,30 @@ GMCPTrack["Char.Items.Remove"] = function(message)
 	end -- if
 end -- function
 
+GMCPTrack["Room.Info"] = function(message)
+	local roomInfo = json.decode(message)
+	GMCPDeepUpdate(gmcp.Room.Info, roomInfo)
+	exits = {}
+	for k,v in pairs(roomInfo.exits) do
+		table.insert(exits, k)
+	end -- for
+end -- function
+
+GMCPTrack["Room.Players"] = function(message)
+	local players = json.decode(message)
+	GMCPDeepUpdate(gmcp.Room.Players, players)
+end -- function
+
+GMCPTrack["Room.AddPlayer"] = function(message)
+	local addPlayer = json.decode(message)
+	GMCPDeepUpdate(gmcp.Room.AddPlayer, addPlayer)
+end -- function
+
+GMCPTrack["Room.RemovePlayer"] = function(message)
+	local removePlayer = json.decode(message)
+	gmcp.Room.RemovePlayer = removePlayer
+end -- function
+
 GMCPTrack["IRE.Rift.List"] = function(message)
 	local riftItems = json.decode(message)
 	gmcp.IRE.Rift.List = riftItems
@@ -402,18 +452,29 @@ GMCPTrack["IRE.Target.Info"] = function(message)
 	GMCPDeepUpdate(gmcp.IRE.Target.Info, targetInfo)
 end -- function
 
+GMCPTrack["Comm.Channel.List"] = function(message)
+	local channels = json.decode(message)
+	GMCPDeepUpdate(gmcp.Comm.Channel.List, channels)
+end -- function
+
 GMCPTrack["Comm.Channel.Text"] = function(message)
+  
 	local data = json.decode(message)
 	local text = StripANSI(data.text)
-	if text:startswith("(") then return end -- if
 
-	local speaker = data.channel
+	local channel = data.channel
  
-	if string.find(speaker, "tell") then
-		speaker = "tells"
+	if string.find(channel, "tell") then
+		channel = "tells"
 	end -- if
-
-	AddToHistory(speaker, false, StripANSI(data.text))
+  
+  local talker = data.talker
+  
+  local comm = {text = text, talker = talker, channel = channel}
+  oracle.listener:call("Comm.Channel.Text", comm)
+  
+  if text:startswith("(") then return end -- if
+	AddToHistory(channel, false, StripANSI(data.text))
 end -- function
 
 GMCPTrack["IRE.Composer.Edit"] = function(message)
