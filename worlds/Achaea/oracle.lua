@@ -92,7 +92,7 @@ end -- function
 --call returns true if it proceeds to the end and none of the functions called raised errors, false otherwise
 function oracle.listener:call(event, arg)
 	if type(event) ~= "string" then
-		return
+		return false
 	end --if
 	local t = self.callbacks[event]
 	local t2 = self.callbackonce[event]

@@ -1,7 +1,6 @@
 require "json"
 require "luatable"
 
-
 oracle = oracle or {}
 -- Define gmcp tables --
 gmcp = {
@@ -74,6 +73,7 @@ GMCPDeepUpdate = function(t1,t2)
 end
 
 function handle_GMCP(name, line, wc)
+
 	local command = wc[1]
 	local args = wc[2]
 	GMCPTrackProcess(command,args)
@@ -458,17 +458,23 @@ GMCPTrack["Comm.Channel.List"] = function(message)
 end -- function
 
 GMCPTrack["Comm.Channel.Text"] = function(message)
+  
 	local data = json.decode(message)
 	local text = StripANSI(data.text)
-	if text:startswith("(") then return end -- if
 
-	local speaker = data.channel
+	local channel = data.channel
  
-	if string.find(speaker, "tell") then
-		speaker = "tells"
+	if string.find(channel, "tell") then
+		channel = "tells"
 	end -- if
-
-	AddToHistory(speaker, false, StripANSI(data.text))
+  
+  local talker = data.talker
+  
+  local comm = {text = text, talker = talker, channel = channel}
+  oracle.listener:call("Comm.Channel.Text", comm)
+  
+  if text:startswith("(") then return end -- if
+	AddToHistory(channel, false, StripANSI(data.text))
 end -- function
 
 GMCPTrack["IRE.Composer.Edit"] = function(message)
