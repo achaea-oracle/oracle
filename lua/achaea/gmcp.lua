@@ -234,6 +234,8 @@ GMCPTrack["Char.Vitals"] = function(message)
 	stats.deltamppercent = percent(stats.deltamp, stats.maxmp)
 	stats.lastep = tonumber(stats.ep) or 0
 	stats.ep = tonumber(vitals.ep) or 0
+	stats.maxep = tonumber(vitals.maxep) or 5000
+	stats.maxwp = tonumber(vitals.maxwp) or 5000
 	stats.lastwp = tonumber(stats.wp) or 0
 	stats.wp = tonumber(vitals.wp) or 0
 
@@ -458,10 +460,10 @@ end -- function
 
 GMCPTrack["Room.RemovePlayer"] = function(message)
 	local removePlayer = json.decode(message)
-	local name = removePlayer.name
+	local name = message
 	gmcp.Room.RemovePlayer = removePlayer
 	oracle.roomPlayers[name] = nil
-	oracle.listeners:call("Room.RemovePlayer", removePlayer)
+	oracle.listener:call("Room.RemovePlayer", removePlayer)
 end -- function
 
 GMCPTrack["IRE.Rift.List"] = function(message)
