@@ -64,9 +64,20 @@ oracle.listener.callbackonce = {}
 --listener returns true if it proceeds to the end
 function oracle.listener:register(event, func, once)
 	local t
-	if type(event) ~= "string" or type(func) ~= "function" then
+	if type(event) ~= "string" then
 		return
 	end -- if
+  
+	if type(func) ~= "function" then
+		if type(func) ~= "table" then
+			return
+		else
+			local meta = getmetatable(func)
+			if not meta or not meta.__call then
+				return
+			end -- if
+		end -- if
+	end --if
 	if not once then
 		t = self.callbacks[event]
 	else
