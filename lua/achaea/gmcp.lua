@@ -417,7 +417,7 @@ end -- function
 
 GMCPTrack["Room.Info"] = function(message)
 	local roomInfo = json.decode(message)
-	GMCPDeepUpdate(gmcp.Room.Info, roomInfo)
+	gmcp.Room.Info = roomInfo
 	exits = {}
 	for k,v in pairs(roomInfo.exits) do
 		table.insert(exits, k)

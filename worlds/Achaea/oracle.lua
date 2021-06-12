@@ -128,6 +128,7 @@ function oracle.listener:unregister(event, func, once)
 	if type(event) ~= "string" or type(func) ~= "function" then
 		return
 	end -- if
+	
 	if not once then
 		local t = self.callbacks[event]
 	else
