@@ -2,14 +2,27 @@ local dir = require "pl.dir"
 local path = require "pl.path"
 local stringx = require "pl.stringx"
 
-soundext = {".ogg", ".wav", ".mp3"}
+require "ppi"
+local ppi = ppi.Load("aedf0cb0be5bf045860d54b7") -- add sanity checks
+
+soundext = {".wav", ".ogg", ".mp3"}
 SOUND_PATH = GetInfo(67).."/sounds"
 
-function playSound(soundname)
+function playSound(soundname, loops, pan, vol, pitch)
+	local loops = tonumber(loops) or 0
+	local pan = tonumber(pan) or 0
 	local sound = findGameSound(soundname)
-	if sound then
-		return Sound(sound)
+	oracle.debug.print(5, "playSound %s, %s, %s, %s, %s", sound_file or "nil", loops or "nil", pan or "nil", vol or "nil", pitch or "nil")
+
+	if not sound then
+		oracle.debug.print(5, "No sound to play.")
+		return nil
 	end -- if
+	local id = ppi.play(sound, loops, pan, vol)
+	if tonumber(pitch) and id then
+		ppi.setPitch(pitch, id)
+	end -- if
+	return id
 end -- function
 
 function findGameSound(soundname)
