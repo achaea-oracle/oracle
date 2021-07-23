@@ -180,7 +180,7 @@ end
 
 local function getVolume(id)
   return audio.getVolume(id)
-end
+end -- local function getVolume(id)
 
 function SoundPan(panning)
   pan=split(panning, "=")
@@ -190,7 +190,7 @@ function SoundPan(panning)
   Sound("pan="..(current*200/max)-100)
   Sound(file)
   Sound("pan=0")
-end
+end -- function SoundPan(panning)
 
 function split(str, pat)
   local t = {}  
@@ -209,17 +209,18 @@ function split(str, pat)
     table.insert(t, cap)
   end
   return t
-end 
+end -- function split(str, pat)
 
 -- mapping of loops to ids
 loops = {}
-require "tprint"
+
 
 function OnPluginPlaySound(file)
   if file == "" then
     audio.stop(0)
     return
   end -- if
+  
   if file:find("=") then
     t = split(file, "=")
     if t[1] == "pan" then
@@ -231,10 +232,11 @@ function OnPluginPlaySound(file)
     elseif t[1] == "loop" then
       file = t[2]
       local id = audio.play(file, 1)
-      --Note(id)
+      
       if id ~= 0 then
         loops[file] = id
       end -- If
+      
     elseif t[1] == "stop" then
       if t[2] == "all" then
         for k,v in pairs(loops) do
@@ -247,60 +249,83 @@ function OnPluginPlaySound(file)
     end -- if t1
   else -- doesn't contain =
     id=audio.play(file,0)
-    --Note(id)
-    --if id==0 then
-      --Sound(GetInfo(67).."/sounds/luaaudio/error.ogg")
-    --end
   end -- if contains =
-end
+end -- function OnPluginPlaySound(file)
 
-function setPan(x,id)
-audio.pan(x,id)
-end
+function setPan(x, id)
+ if x and id then
+  audio.pan(x, id)
+ else
+  Note(string.format("setPan failed. x: %s, id: %s", x or "nil", id or "nil"))
+ end -- if
+end -- function setPan(x,id)
 
-function setPitch(x,id)
+function setPitch(x, id)
+ if x and id then
   audio.pitch(x,id)
-end
+ else
+  Note(string.format("setPitch failed. x: %s, id: %s", x or "nil", id or "nil"))
+ end -- if
+end -- function setPitch(x,id)
 
-function setVol(x,id)
-  audio.volume(x,id)
-end
+function setVol(x, id)
+ if x and id then
+  audio.volume(x, id)
+ else
+  Note(string.format("setVol failed. x: %s, id: %s", x or "nil", id or "nil"))
+ end -- if
+end -- function setVol(x,id)
 
-function slideVol(x,id,time)
-  audio.slideVol(x,id,time)
-end
+		--
+		-- Slides volume up or down aka fading. x refers to the desired volume, id the playout id, and time is in ms.
+function slideVol(x, id, time)
+  if x and id and time then
+  audio.slideVol(x, id, time)
+ else
+  Note(string.format("slideVol failed. x: %s, id: %s time: %s", x or "nil", id or "nil", time or "nil"))
+ end -- if
+end -- function slideVol(x,id,time)
 
-function fadeout(id,time)
-  audio.fadeout(id,time)
-end
+function fadeout(id, _time)
+ if id then
+   audio.fadeout(id, _time)
+  else
+   Note(string.format("fadeout failed. id: %s time: %s", id or "nil", _time or "nil"))
+  end -- if
+end -- function fadeout(id,time)
 
-function slidePan(x,id,time)
-  audio.slidePan(x,id,time)
-end
+function slidePan(x, id, _time)
+ if x and id then
+   audio.slidePan(x, id, _time)
+  else
+   Note(string.format("slidePan failed x: %s id: %s time: %s", x or "nil", id or "nil", _time or "nil"))
+  end -- if
+end -- function slidePan(x, id, time)
 
-local function slidePitch(x,id,time)
-  audio.slidePitch(x,id,time)
+local function slidePitch(x, id, _time)
+ if x and id then
+  audio.slidePitch(x, id, _time)
+ else
+  Note(string.format("slidePitch failed x: %s id: %s time: %s", x or "nil", id or "nil", _time or "nil"))
+ end -- if
 end
 
 local function stop(id)
+ if id then
   audio.stop(id)
+ else
+  Note(string.format("audio stop failed id: %s", id or "nil"))
+ end -- if
 end
 
-local function playDelay(file,time,pan,vol)
-  id=audio.playDelay(file,time,pan,vol)
-  --if id==0 then
-  --Sound(GetInfo(67).."/sounds/luaaudio/error.ogg")
-  return id
-  --end
-end
+local function playDelay(file, time, pan, vol)
+  return audio.playDelay(file, time, pan, vol)
+end -- local function playDelay(file, time, pan, vol)
 
 local function playDelayLooped(file,time,pan,vol)
   id=audio.playDelayLooped(file,time,pan,vol)
-  --if id==0 then
-  --Sound(GetInfo(67).."/sounds/luaaudio/error.ogg")
   return id
-  --end
-end
+end -- local function playDelayLooped(file,time,pan,vol)
 
 local function playLooped(file)
   id=audio.play(file,1)
@@ -309,19 +334,20 @@ local function playLooped(file)
   --Sound(GetInfo(67).."/sounds/luaaudio/error.ogg")
   --end
   return id
-end
+end -- local function playLooped(file)
 
-local function play(file,loop,pan,vol)
-  id=audio.play(file,loop,pan,vol)
-  if vol~=nil then
-    if vol>100 then vol=100 end
-  end
-  --Note(id)
-  --if id==0 then
-  --Sound(GetInfo(67).."/sounds/luaaudio/error.ogg")
-  --end
+local function play(file, loop, pan, vol)
+  id=audio.play(file, loop, pan, vol)
+  
+  --if vol not nil and greater than 100 then cap at 100
+  if vol ~= nil then
+    if vol > 100 then 
+     vol=100 
+    end -- if
+  end -- if
+  
   return id
-end
+end -- local function play(file,loop,pan,vol)
 
 --------------------------------------------------------
 -- startup/shutdown
@@ -329,6 +355,7 @@ end
 
 function OnPluginInstall ()
   assert(package.loadlib("audio.dll", "luaopen_audio"))()
+  
   if not (GetVariable("vol")==nil) then
     vol=tonumber(GetVariable("vol"))
     Sound("volume="..vol.."")
@@ -337,14 +364,14 @@ function OnPluginInstall ()
     Sound("volume=100")
     SetVariable("vol", "100")
     SaveState()
-  end
-end
+  end -- if
+end -- function OnPluginInstall ()
 
 function OnPluginClose()
 if #GetWorldList()==1 then
-audio.free()
-end
-end
+ audio.free()
+end -- if
+end -- function OnPluginClose()
 
 --------------------------------------------------------
 -- external interfaces
@@ -369,7 +396,10 @@ ppi.Expose("fadeout",fadeout)
 ppi.Expose("slidePan",slidePan)
 ppi.Expose("playLooped",playLooped)
 
+--set keybindings 
 Accelerator("ctrl+f12", "sound_toggle")
+Accelerator("f11", "volume_down")
+Accelerator("f12", "volume_up")
 ]]>            
  </script> 
 </muclient>
