@@ -1,6 +1,5 @@
 --initialization
 
-sqlite3 = require "lsqlite3complete"
 ndb = ndb or {}
 ndb.namedb, errCode, errMsg = sqlite3.open("ndb.sqlite3") --note that sqlite3.open creates file if it doesn't exist
 --print("why?")

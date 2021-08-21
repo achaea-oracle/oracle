@@ -1,6 +1,11 @@
+-- General library imports --
+require "math"
 require "json"
 require "luaTable" -- extra table functions
 require "tprint" -- useful in global namespace
+require "serialize" -- passing information through GetVariable
+require "getstyle" -- will be useful for constructing NDB
+require "addxml" -- for merging aliases/triggers into world
 
 local path = require 'pl.path'
 local seq = require 'pl.seq'
@@ -25,6 +30,24 @@ function ExecuteNoStack(cmd)
   Execute(cmd)
   SetOption("enable_command_stack", s)
 end
+
+function lineProcess(name, line, wildcards, style)
+	local newPrompt = GetPluginVariable("b007454f07bf5e41d15f15a0", "newPrompt") --pull relevant variable from GMCP_to_world plugin
+	local gmcpQueueStr
+	if newPrompt == "1" then
+		newPrompt = true
+		gmcpQueueStr = GetPluginVariable("b007454f07bf5e41d15f15a0", "gmcpQueue")
+		if string.len(gmcpQueueStr) > 0 then
+			assert(loadstring(gmcpQueueStr))()
+		end
+		CallPlugin("b007454f07bf5e41d15f15a0", "PromptAck")
+		handle_GMCP(gmcpQueue)
+		gmcpQueue = nil
+		oracle.listener:call("prompt")
+	else
+		newPrompt = false
+	end -- if
+end -- function
 
 -- Define oracle --
 oracle = oracle or {}
@@ -75,9 +98,10 @@ function oracle.listener:register(event, func, once)
 			local meta = getmetatable(func)
 			if not meta or not meta.__call then
 				return
-			end -- if
-		end -- if
-	end --if
+			end -- if not meta
+		end -- if type(func) ~= "table"
+	end -- if type(func) ~= "function"
+  
 	if not once then
 		t = self.callbacks[event]
 	else
@@ -128,7 +152,6 @@ function oracle.listener:unregister(event, func, once)
 	if type(event) ~= "string" or type(func) ~= "function" then
 		return
 	end -- if
-	
 	if not once then
 		local t = self.callbacks[event]
 	else

@@ -30,10 +30,23 @@ Install into IRE games to catch ATCP messages.
    send_to="12"
    sequence="100"
   >
-  <send>SendGMCPPacket("%1")
+  <send>if "%1" ~= "debug" then
+	SendGMCPPacket("%1")
   Send("")
+	end
   </send>
   </alias>
+	<alias
+		match = "^__TOGGLELOG$"
+		enabled = "y"
+		regexp = "y"
+		send_to="12"
+		sequence = "100"
+		keep_evaluating = "y"
+	>
+	<send>toggleLogMode()
+	</send>
+	</alias>
 </aliases>
 
 <!--  Script  -->
@@ -42,10 +55,48 @@ Install into IRE games to catch ATCP messages.
 <script>
 <![CDATA[
 require "json"
+require "serialize"
 
 local CLIENT_ID = json.encode({client="MUSHclient", version=Version ()})
 local IAC, SB, SE, DO = 0xFF, 0xFA, 0xF0, 0xFD
 local ATCP = 201
+local gmcpQueue = {}
+
+local logFile = io.open("GMCP_log.txt", "w")
+local logQueue = {}
+local logLength = logLength or 0
+local logMode = false
+
+local function log(what)
+  if not logState or logLength > 100000 then
+    return
+  end
+  
+  if what == nil then
+    return
+  elseif type(what) ~= "table" then
+    logFile:write(string.format("%f.2: %s\n", tostring(os.clock()), tostring(what)))
+    logLength = logLength + 1
+  else
+    local what_table = {}
+    for k,v in pairs(what) do
+      table.insert(what_table, string.format([["%s : %s"]], tostring(k), tostring(v)))
+    end
+    logFile:write(string.format("%f.2: {%s}\n", tostring(os.clock()), tostring(table.concat(what_table, ", "))))
+    logLength = logLength + 1
+  end
+end
+
+function toggleLogMode(state)
+	if not LogMode or state == false then
+		logMode = true
+	else
+		logMode = false
+	end
+	
+	print(string.format("Incoming Log Mode has been set to: %s", tostring(logMode)))
+	return logMode
+end
 
 function SendGMCPPacket(data)
   SendPkt(string.char (IAC, SB, ATCP) .. data .. string.char (IAC, SE))
@@ -84,8 +135,28 @@ function OnPluginTelnetSubnegotiation (type, option)
     return
   end -- don't seem to have a command
   
-  ExecuteNoStack("handle_GMCP " .. command .. "=" .. args)
+  --ExecuteNoStack("handle_GMCP " .. command .. "=" .. args)
+  gmcpQueue[#gmcpQueue+1] = {command, args}
 end -- function OnPluginTelnetSubnegotiation
+
+function OnPlugin_IAC_GA()
+  local gmcpQueueStr = serialize.save("gmcpQueue", gmcpQueue)
+  log(gmcpQueueStr)
+  --print(gmcpQueueStr)
+  SetVariable("gmcpQueue", gmcpQueueStr)
+  SetVariable("newPrompt", "1")
+  gmcpQueue = {}
+end
+
+function OnPluginLineReceived(sText)
+  --tprint(cmdQueue)
+  log(sText)
+end
+
+function PromptAck()
+  SetVariable("newPrompt", "0")
+  SetVariable("gmcpQueue", "")
+end
 
 function ExecuteNoStack(cmd)
   local s = GetOption("enable_command_stack")
