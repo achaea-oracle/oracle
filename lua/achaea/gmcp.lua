@@ -72,11 +72,10 @@ GMCPDeepUpdate = function(t1,t2)
 	return t1
 end
 
-function handle_GMCP(name, line, wc)
-
-	local command = wc[1]
-	local args = wc[2]
-	GMCPTrackProcess(command,args)
+function handle_GMCP(queue)
+	for i,v in ipairs(queue) do
+		GMCPTrackProcess(v[1], v[2])
+	end
 end -- function
 
 --This section defines the mobs table
@@ -451,6 +450,9 @@ GMCPTrack["Room.Players"] = function(message)
 end -- function
 
 GMCPTrack["Room.AddPlayer"] = function(message)
+	if not oracle.roomPlayers then
+		oracle.roomPlayers = {}
+	end
 	local addPlayer = json.decode(message)
 	local name = addPlayer.name
 	GMCPDeepUpdate(gmcp.Room.AddPlayer, addPlayer)
@@ -459,6 +461,9 @@ GMCPTrack["Room.AddPlayer"] = function(message)
 end -- function
 
 GMCPTrack["Room.RemovePlayer"] = function(message)
+	if not oracle.roomPlayers then
+		oracle.roomPlayers = {}
+	end
 	local removePlayer = json.decode(message)
 	local name = message
 	gmcp.Room.RemovePlayer = removePlayer
