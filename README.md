@@ -7,3 +7,4 @@ Oracle is a set of [MUSHclient](https://www.mushclient.com/) plugins and scripts
 Code written by [@AKJ](https://github.com/akj) and [@RollanzMushing](https://github.com/rollanzmushing).
 
 GMCP_To_World plugin initially created by [@spivey](https://github.com/tspivey).
+
