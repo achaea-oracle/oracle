@@ -117,6 +117,17 @@
   >
   <trigger
    enabled="y"
+   group="oracle"
+   keep_evaluating="y"
+   match="^.*$"
+   name="anyLine"
+   regexp="y"
+   script="lineProcess"
+   sequence="10"
+  >
+  </trigger>
+  <trigger
+   enabled="y"
    group="goldtracker"
    ignore_case="y"
    keep_evaluating="y"
