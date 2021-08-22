@@ -72,11 +72,10 @@ GMCPDeepUpdate = function(t1,t2)
 	return t1
 end
 
-function handle_GMCP(name, line, wc)
-
-	local command = wc[1]
-	local args = wc[2]
-	GMCPTrackProcess(command,args)
+function handle_GMCP(queue)
+	for i,v in ipairs(queue) do
+		GMCPTrackProcess(v[1], v[2])
+	end
 end -- function
 
 --This section defines the mobs table
@@ -96,6 +95,7 @@ function mobs:add(mob)
 		end
 	end
 	self.list[#self.list + 1] = mob
+	oracle.listener:call("add mob", mob)
 end
 
 function mobs:remove(mob)
@@ -108,6 +108,7 @@ function mobs:remove(mob)
 			return
 		end
 	end
+	oracle.listener:call("remove mob", mob)
 end
 
 function mobs:clear()
@@ -122,10 +123,11 @@ function mobs:parseRoomItems()
 	for k,v in pairs(oracle.items.room) do
 		if type(v.attrib) == "string" then
 			if string.match(v.attrib, "m") and not string.match(v.attrib, "x") and not string.match(v.attrib, "d") then
-				mobs.list[#mobs.list + 1] = v
+				self.list[#self.list + 1] = v
 			end
 		end
 	end
+	oracle.listener:call("mobs list", self.list)
 end
 
 --define tables and methods associated with inventory items
@@ -145,6 +147,7 @@ function oracle.items.inv:setWielded(hand, item)
 		self.wielded.right = { name = item.name, id = item.id }
 		self.wielded.both = false
 	end
+	oracle.listener:call("wield", self.wielded)
 end
 
 function oracle.items.inv:parse()
@@ -230,6 +233,8 @@ GMCPTrack["Char.Vitals"] = function(message)
 	stats.deltamppercent = percent(stats.deltamp, stats.maxmp)
 	stats.lastep = tonumber(stats.ep) or 0
 	stats.ep = tonumber(vitals.ep) or 0
+	stats.maxep = tonumber(vitals.maxep) or 5000
+	stats.maxwp = tonumber(vitals.maxwp) or 5000
 	stats.lastwp = tonumber(stats.wp) or 0
 	stats.wp = tonumber(vitals.wp) or 0
 
@@ -249,6 +254,8 @@ GMCPTrack["Char.Vitals"] = function(message)
 	local rage = vitals.charstats[2]
 	rage = rage:gsub("%D", "")
 	stats.rage = rage
+	oracle.listener:call("charstats", oracle.charstats)
+	oracle.listener:call("GMCP vitals", oracle.stats)
 end -- function
 
 GMCPTrack["Char.Afflictions.List"] = function(message)
@@ -392,7 +399,7 @@ GMCPTrack["Char.Items.Add"] = function(message)
 end -- function
 
 GMCPTrack["Char.Items.Remove"] = function(message)
-  oracle.items = oracle.items or {}
+	oracle.items = oracle.items or {}
 	oracle.items.room = oracle.items.room or {}
 	local itemToRemove = json.decode(message)
 	GMCPDeepUpdate(gmcp.Char.Items.Remove, itemToRemove)
@@ -409,7 +416,7 @@ end -- function
 
 GMCPTrack["Room.Info"] = function(message)
 	local roomInfo = json.decode(message)
-	GMCPDeepUpdate(gmcp.Room.Info, roomInfo)
+	gmcp.Room.Info = roomInfo
 	exits = {}
 	for k,v in pairs(roomInfo.exits) do
 		table.insert(exits, k)
@@ -417,18 +424,51 @@ GMCPTrack["Room.Info"] = function(message)
 end -- function
 
 GMCPTrack["Room.Players"] = function(message)
+	local roomPlayers = oracle.roomPlayers
+	if not roomPlayers then
+		roomPlayers = {}
+		oracle.roomPlayers = roomPlayers
+	end -- if
+	local addPlayers = {}
+	local removePlayers = {}
 	local players = json.decode(message)
+	
+	for i,v in ipairs(players) do
+		local name = v.name
+		if roomPlayers[name] then
+			roomPlayers[name] = nil
+		else
+			addPlayers[name] = v
+		end
+	end
+	removePlayers = roomPlayers
+	
+	oracle.roomPlayers = players
+	
 	GMCPDeepUpdate(gmcp.Room.Players, players)
+	oracle.listener:call("Room.Players", {addPlayers = addPlayers, removePlayers = removePlayers})
 end -- function
 
 GMCPTrack["Room.AddPlayer"] = function(message)
+	if not oracle.roomPlayers then
+		oracle.roomPlayers = {}
+	end
 	local addPlayer = json.decode(message)
+	local name = addPlayer.name
 	GMCPDeepUpdate(gmcp.Room.AddPlayer, addPlayer)
+	oracle.roomPlayers[name] = addPlayer
+	oracle.listener:call("Room.AddPlayer", addPlayer)
 end -- function
 
 GMCPTrack["Room.RemovePlayer"] = function(message)
+	if not oracle.roomPlayers then
+		oracle.roomPlayers = {}
+	end
 	local removePlayer = json.decode(message)
+	local name = message
 	gmcp.Room.RemovePlayer = removePlayer
+	oracle.roomPlayers[name] = nil
+	oracle.listener:call("Room.RemovePlayer", removePlayer)
 end -- function
 
 GMCPTrack["IRE.Rift.List"] = function(message)
@@ -458,22 +498,21 @@ GMCPTrack["Comm.Channel.List"] = function(message)
 end -- function
 
 GMCPTrack["Comm.Channel.Text"] = function(message)
-  
 	local data = json.decode(message)
 	local text = StripANSI(data.text)
 
 	local channel = data.channel
- 
+
 	if string.find(channel, "tell") then
 		channel = "tells"
 	end -- if
-  
-  local talker = data.talker
-  
-  local comm = {text = text, talker = talker, channel = channel}
-  oracle.listener:call("Comm.Channel.Text", comm)
-  
-  if text:startswith("(") then return end -- if
+	
+	local talker = data.talker
+	
+	local comm = {text = text, talker = talker, channel = channel}
+	oracle.listener:call("Comm.Channel.Text", comm)
+	
+	if text:startswith("(") then return end -- if
 	AddToHistory(channel, false, StripANSI(data.text))
 end -- function
 
