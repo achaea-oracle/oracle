@@ -1,4 +1,4 @@
---[[
+--[=[
 	Name: Lua Timer
 	Description: Functions to extend and simplify the timer system in MUSHclient.
 
@@ -11,8 +11,8 @@
 	Cmdtype: Where to send the command (defaults to sendto.script). Todo: sanity check the value of cmdtype.
 
 	Example:
-	myTimer = tempTimer(5, "Send("grin")
-]]
+	myTimer = tempTimer(5, [[Send("grin")]]
+]=]
 
 function convertSeconds (seconds)			
 	local hours = math.floor (seconds / 3600)
@@ -27,7 +27,7 @@ function tempTimer(time, cmd, cmdtype)
 	local hour, min, sec = convertSeconds(time)
 	local cmd = cmd or ""
 	local flags = timer_flag.Enabled + timer_flag.OneShot + timer_flag.Replace + timer_flag.Temporary
-	local cmdtype = cmdtype or "sendto.script"
+	local cmdtype = cmdtype or sendto.script
 	local e = AddTimer(name, hour, min, sec, cmd, flags)
 	if e == error_code.eOK then
 		check(SetTimerOption(name, "send_to", cmdtype))
